@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_04_134242) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_04_195859) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,15 +59,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_134242) do
   create_table "events", force: :cascade do |t|
     t.text "body"
     t.string "category"
+    t.text "country_codes", default: [], array: true
     t.datetime "created_at", null: false
     t.text "description"
+    t.datetime "ends_at"
+    t.string "external_id"
+    t.boolean "featured", default: false, null: false
+    t.string "image_url"
     t.boolean "published", default: true, null: false
+    t.string "recurrence", default: "one_time", null: false
     t.string "slug", null: false
     t.string "source"
     t.datetime "starts_at", null: false
+    t.string "timezone"
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.index ["country_codes"], name: "index_events_on_country_codes", using: :gin
+    t.index ["external_id"], name: "index_events_on_external_id"
+    t.index ["published", "starts_at"], name: "index_events_on_published_and_starts_at"
     t.index ["slug"], name: "index_events_on_slug", unique: true
+    t.index ["starts_at"], name: "index_events_on_starts_at"
   end
 
   create_table "holidays", force: :cascade do |t|

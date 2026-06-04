@@ -69,8 +69,6 @@
       <%= yield %>
     </main>
 
-    <footer class="border-t border-slate-200 mt-16 py-8 text-center text-sm text-slate-400">
-      <p>&copy; <%= Date.today.year %> timeagocalculator.com</p>
-    </footer>
+    <%= render "shared/footer" %>
   </body>
 </html>

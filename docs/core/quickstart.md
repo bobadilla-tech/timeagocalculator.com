@@ -1,7 +1,5 @@
 # Developer Quick Start
 
-## Prerequisites
-
 - Ruby 4.0.3 (`rbenv` or `asdf`)
 - PostgreSQL running locally
 - Redis running locally
@@ -12,16 +10,8 @@
 ## Setup
 
 ```bash
-# Clone and enter repo
-git clone <repo-url>
-cd timeagocalculator.com
-
-# Install gems
-cd apps/web
-bundle install
-
-# Create DB, run migrations, seed data
-bin/rails db:create db:migrate db:seed
+# Install gems and set up database
+cd apps/web bundle install && bin/rails db:create db:migrate db:seed
 ```
 
 ---
@@ -34,35 +24,13 @@ bin/dev
 ```
 
 This starts:
+
 - Rails server on `http://localhost:3000`
 - Tailwind CSS watcher (`bin/rails tailwindcss:watch`)
 
 Procfile is at `apps/web/Procfile.dev`.
 
----
 
-## Key URLs
-
-| URL | What |
-|-----|------|
-| `http://localhost:3000` | Time Ago Calculator (root) |
-| `/time-ago-calculator?date=2000-01-01` | Calculator with result |
-| `/time-until-calculator?date=2027-12-25` | Countdown |
-| `/date-difference-calculator?from=2020-01-01&to=2025-01-01` | Date diff |
-| `/age-calculator?birthdate=1990-01-01` | Age |
-| `/business-days-calculator` | Business days (weekends + holiday-aware) |
-| `/how-long-ago/moon-landing` | Historical event page |
-| `/countdown/christmas` | Holiday countdown |
-| `/age/taylor-swift` | Celebrity age |
-| `/sign-up` | Create account |
-| `/session/new` | Sign in |
-| `/dashboard` | User dashboard — my countdowns + favorites |
-| `/countdowns/new` | Create custom countdown (no account required) |
-| `/c/:token` | View shared countdown |
-| `/c/:token/edit` | Edit countdown (owner only) |
-| `/up` | Health check |
-
----
 
 ## Project Structure
 

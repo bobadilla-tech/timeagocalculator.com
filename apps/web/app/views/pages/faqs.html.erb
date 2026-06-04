@@ -1,0 +1,71 @@
+<div class="max-w-2xl mx-auto">
+  <nav class="text-sm text-slate-400 mb-6">
+    <%= link_to "Home", root_path, class: "hover:text-blue-600" %> /
+    <span class="text-slate-600"><%= @page.title %></span>
+  </nav>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+    <h1 class="text-3xl font-bold text-slate-900 mb-3"><%= @page.title %></h1>
+
+    <div class="space-y-8 mt-6 text-slate-600">
+      <section>
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">What is Time Ago Calculator?</h2>
+        <p>Time Ago Calculator is a collection of date and time tools for calculating how long ago things happened, how long until future events, and the difference between two specific dates. Results include years, months, weeks, days, hours, minutes and seconds, plus useful breakdowns for planning and sharing.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">How do I calculate the time between two dates?</h2>
+        <p>Use the Date Difference tool to enter a start and end date. The calculator will show the elapsed time in multiple units. Try it here: <%= link_to "Date Difference", date_difference_calculator_path, class: "text-blue-600 hover:text-blue-700" %>.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">Can I create my own countdown?</h2>
+        <p>Yes — you can create countdowns for future events or count the time since past events. Create one quickly using the countdown builder: <%= link_to "Create Countdown", new_countdown_path, class: "text-blue-600 hover:text-blue-700" %>.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">Do I have to sign up to create a countdown?</h2>
+        <p>No, creating a countdown does not require an account. Signing up gives you additional benefits such as saving unlimited countdowns, uploading images, and editing your countdowns later.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">What countdown layouts are available?</h2>
+        <p>We offer several layouts: complete days + exact countdown (default), days/hours/minutes/seconds only, hours/minutes/seconds, days-only, and years/months/days for long-term events. If you want a custom layout, <%= link_to "contact us", contact_path, class: "text-blue-600 hover:text-blue-700" %> with your idea.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">Can I set a specific timezone for my countdown?</h2>
+        <p>Yes — we detect your timezone by default but you can override it to any worldwide timezone so your countdown reflects the exact start time of an event in another country.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">How accurate are the date calculators?</h2>
+        <p>Our calculators account for leap years, timezone offsets, and common calendar rules to provide precise results. They use well-tested date/time libraries used across the industry.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">Can I calculate dates in the past?</h2>
+        <p>Yes — all tools work for both past and future dates. Use the Time Ago tool to see how long ago something happened, or the Date Difference tool for ranges.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">Are business days calculated for different countries?</h2>
+        <p>Yes — the Business Days calculator supports multiple country calendars and accounts for national holidays for accurate working-day counts.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">Is this service free?</h2>
+        <p>Yes. Time Ago Calculator is free for personal and educational use. The site is supported by unobtrusive advertising and optional support links.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-semibold text-slate-900 mb-2">Still have questions?</h2>
+        <p>If you have more questions or need help, <%= link_to "contact us", contact_path, class: "text-blue-600 hover:text-blue-700" %> or use the <%= link_to "feedback form", feedback_path, class: "text-blue-600 hover:text-blue-700" %>.</p>
+      </section>
+    </div>
+
+    <div class="mt-8">
+      <%= link_to "Back to calculators", root_path, class: "inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" %>
+    </div>
+  </div>
+</div>

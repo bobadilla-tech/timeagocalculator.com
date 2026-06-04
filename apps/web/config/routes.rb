@@ -13,6 +13,19 @@ Rails.application.routes.draw do
   get  "/business-days-calculator",      to: "calculators/business_days#show",  as: :business_days_calculator
   get  "/countdown-widget-builder",    to: "widgets#builder",                 as: :countdown_widget_builder
   get  "/widget/countdown",            to: "widgets#countdown",               as: :countdown_widget
+  get  "/date-calculator",             to: "pages#date_calculator",             as: :date_calculator
+  get  "/day-of-the-week",             to: "pages#day_of_the_week",             as: :day_of_the_week
+  get  "/recurring-date-finder",       to: "pages#recurring_date_finder",       as: :recurring_date_finder
+  get  "/week-number",                 to: "pages#week_number",                 as: :week_number
+  get  "/anniversary-calculator",      to: "pages#anniversary_calculator",      as: :anniversary_calculator
+  get  "/privacy-policy",              to: "pages#privacy_policy",              as: :privacy_policy
+  get  "/terms-of-service",            to: "pages#terms_of_service",            as: :terms_of_service
+  get  "/contact",                     to: "pages#contact",                     as: :contact
+  get  "/faqs",                        to: "pages#faqs",                        as: :faqs
+  get  "/feedback",                    to: "pages#feedback",                    as: :feedback
+  post "/feedback",                    to: "pages#submit_feedback"
+  get  "/report-a-bug",                to: "pages#report_a_bug",                as: :report_a_bug
+  post "/report-a-bug",                to: "pages#submit_report_a_bug"
   post "/business-days-calculations", to: "business_days_calculations#create",  as: :business_days_calculations
   get  "/bd/:token",                  to: "business_days_calculations#show",    as: :business_days_calculation
   delete "/bd/:token",                to: "business_days_calculations#destroy", as: :destroy_business_days_calculation
@@ -41,8 +54,10 @@ Rails.application.routes.draw do
 
   get "/countdown/new", to: redirect("/countdowns/new")
 
-  get "/how-long-ago/:slug", to: "events#show",   as: :how_long_ago,  constraints: { slug: /[a-z0-9\-]+/ }
-  get "/countdown/:slug",    to: "holidays#show", as: :countdown,     constraints: { slug: /[a-z0-9\-]+/ }
+  get "/events",             to: "events#index",           as: :events
+  get "/events/:slug",       to: "events#show_event",      as: :event,           constraints: { slug: /[a-z0-9\-]+/ }
+  get "/how-long-ago/:slug", to: "events#show",            as: :how_long_ago,    constraints: { slug: /[a-z0-9\-]+/ }
+  get "/countdown/:slug",    to: "holidays#show",          as: :countdown,       constraints: { slug: /[a-z0-9\-]+/ }
   get "/age/:slug",          to: "people#show",   as: :age_page,      constraints: { slug: /[a-z0-9\-]+/ }
 
   root to: "calculators/time_ago#show"

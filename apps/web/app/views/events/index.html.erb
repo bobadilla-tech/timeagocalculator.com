@@ -1,0 +1,121 @@
+<div class="max-w-5xl mx-auto">
+  <nav class="text-sm text-slate-400 mb-6">
+    <%= link_to "Home", root_path, class: "hover:text-blue-600" %> /
+    <span class="text-slate-600">Event Countdowns</span>
+  </nav>
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-slate-900">Event Countdowns</h1>
+    <p class="text-slate-500 mt-2">Upcoming holidays, sports, and cultural events — plus how long ago past events were.</p>
+  </div>
+
+  <%# Category filter %>
+  <div class="flex flex-wrap gap-2 mb-8">
+    <%= link_to "All", events_path(region: @region),
+        class: "px-3 py-1 rounded-full text-sm font-medium #{@category.nil? ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}" %>
+    <% Event::CATEGORIES.each do |cat| %>
+      <%= link_to cat.titleize, events_path(category: cat, region: @region),
+          class: "px-3 py-1 rounded-full text-sm font-medium #{@category == cat ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}" %>
+    <% end %>
+  </div>
+
+  <%# Featured event card %>
+  <% if @featured && @category.nil? && @region.nil? %>
+    <div class="mb-10 bg-gradient-to-r from-blue-700 to-blue-900 rounded-2xl overflow-hidden shadow-lg">
+      <div class="flex flex-col sm:flex-row items-center gap-0">
+        <% if @featured.image_url.present? %>
+          <div class="w-full sm:w-48 h-40 sm:h-full flex-shrink-0">
+            <img src="<%= @featured.image_url %>" alt="<%= @featured.title %>" class="w-full h-full object-cover">
+          </div>
+        <% end %>
+        <div class="p-6 flex-1">
+          <span class="inline-block bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded mb-2 uppercase tracking-wide">
+            <%= @featured.category&.titleize %>
+          </span>
+          <h2 class="text-2xl font-bold text-white mb-1"><%= @featured.title %></h2>
+          <p class="text-blue-200 text-sm mb-4"><%= @featured.starts_at.strftime("%A, %B %-d, %Y") %></p>
+          <% days = @featured.days_until %>
+          <div class="text-4xl font-black text-white mb-4">
+            <% if days == 0 %>
+              It's Today!
+            <% else %>
+              <%= days %> <span class="text-xl font-semibold">days away</span>
+            <% end %>
+          </div>
+          <%= link_to "Open countdown →", event_path(@featured.slug),
+              class: "inline-block border border-white text-white px-4 py-2 rounded-full text-sm hover:bg-white hover:text-blue-800 transition-colors" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Upcoming events %>
+  <% if @upcoming.any? %>
+    <section class="mb-10">
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Happening Soon</h2>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm divide-y divide-slate-100">
+        <% @upcoming.each do |event| %>
+          <%= link_to event_path(event.slug), class: "flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors" do %>
+            <% if event.image_url.present? %>
+              <img src="<%= event.image_url %>" alt="<%= event.title %>"
+                   class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
+            <% else %>
+              <div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 text-xl">
+                <%= category_emoji(event.category) %>
+              </div>
+            <% end %>
+
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-slate-800 truncate"><%= event.title %></p>
+              <p class="text-sm text-slate-500"><%= event.starts_at.strftime("%b %-d, %Y") %></p>
+            </div>
+
+            <% days = event.days_until %>
+            <span class="flex-shrink-0 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
+              <%= days == 0 ? "Today" : "#{days}d" %>
+            </span>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <%# Past events %>
+  <% if @past.any? %>
+    <section>
+      <h2 class="text-xl font-bold text-slate-800 mb-4">Past Events</h2>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm divide-y divide-slate-100">
+        <% @past.each do |event| %>
+          <%= link_to event_path(event.slug), class: "flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors" do %>
+            <% if event.image_url.present? %>
+              <img src="<%= event.image_url %>" alt="<%= event.title %>"
+                   class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
+            <% else %>
+              <div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 text-xl">
+                <%= category_emoji(event.category) %>
+              </div>
+            <% end %>
+
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-slate-800 truncate"><%= event.title %></p>
+              <p class="text-sm text-slate-500"><%= event.starts_at.strftime("%b %-d, %Y") %></p>
+            </div>
+
+            <span class="flex-shrink-0 bg-slate-200 text-slate-600 text-xs font-bold px-2 py-1 rounded">
+              <%= event.days_since %>d ago
+            </span>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <% if @upcoming.empty? && @past.empty? %>
+    <div class="text-center py-16 text-slate-400">
+      <p class="text-lg">No events found.</p>
+      <% if @category.present? %>
+        <%= link_to "View all events", events_path, class: "text-blue-600 hover:underline mt-2 inline-block" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
