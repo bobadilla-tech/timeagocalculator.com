@@ -11,7 +11,11 @@
   <% end %>
 
   <%= form_with model: @countdown, url: countdowns_path,
-        data: { controller: "countdown-form" } do |f| %>
+        data: {
+          controller: "countdown-form",
+          "countdown-form-guest": Current.user ? "false" : "true",
+          action: "submit->countdown-form#preventIfGuestPrivate"
+        } do |f| %>
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
 
@@ -82,6 +86,31 @@
         <%= f.hidden_field :is_public, value: @countdown.is_public? ? "1" : "0",
               data: { "countdown-form-target": "isPublicField" } %>
       </div>
+
+      <%# Guest hints — all inside the form so Stimulus targets resolve correctly %>
+      <% unless Current.user %>
+        <div data-countdown-form-target="guestOpenHint"
+             class="<%= initial_visibility == "open" ? "" : "hidden" %> flex items-start gap-2 text-xs text-blue-800 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+          <span>✦</span>
+          <span><%= link_to "Create a free account", new_registration_path, class: "font-semibold underline" %> to feature this countdown on your profile page!</span>
+        </div>
+
+        <div data-countdown-form-target="guestProtectedHint"
+             class="<%= initial_visibility == "protected" ? "" : "hidden" %> flex items-start gap-2 text-xs text-blue-800 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+          <span>✦</span>
+          <span><%= link_to "Create a free account", new_registration_path, class: "font-semibold underline" %> to update or change the password later!</span>
+        </div>
+
+        <div data-countdown-form-target="guestPrivateError"
+             class="<%= initial_visibility == "private" ? "" : "hidden" %> flex items-start gap-2 text-sm text-red-800 bg-red-50 border border-red-300 rounded-lg px-4 py-3 font-medium">
+          <span class="mt-0.5">⚠</span>
+          <span>
+            You must be signed in to create private countdowns.
+            <%= link_to "Create a free account", new_registration_path, class: "underline font-semibold" %>
+            or <%= link_to "sign in", new_session_path, class: "underline" %>.
+          </span>
+        </div>
+      <% end %>
 
       <%# Password fields — shown only for "protected" %>
       <div data-countdown-form-target="passwordFields"
