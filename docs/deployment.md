@@ -111,8 +111,23 @@ Fill in:
 
 ```bash
 POSTGRES_PASSWORD=<strong random password>
-RAILS_MASTER_KEY=<contents of apps/web/config/master.key>
+RAILS_MASTER_KEY=<32-char hex — see below>
 SECRET_KEY_BASE=<generate below>
+```
+
+**Important:** `RAILS_MASTER_KEY` is read from `.env` by the container — the file `apps/web/config/master.key` is NOT mounted or copied into the image. Get the value from your local machine:
+
+```bash
+# On your local Mac:
+cat /path/to/timeagocalculator.com/apps/web/config/master.key
+# e.g. af6670a8dd3a8f878c7b759e9f26f112  (32 hex chars)
+```
+
+Paste that exact value into `.env`. Verify length:
+
+```bash
+grep RAILS_MASTER_KEY .env | cut -d= -f2 | wc -c
+# Must print 33 (32 chars + newline)
 ```
 
 ### 2.2 Generate `SECRET_KEY_BASE`
