@@ -1,0 +1,66 @@
+[
+  {
+    "title": "Christmas",
+    "slug": "christmas",
+    "month": 12,
+    "day": 25,
+    "country": "US",
+    "description": "Christmas is celebrated on December 25th each year."
+  },
+  {
+    "title": "New Year's Day",
+    "slug": "new-years",
+    "month": 1,
+    "day": 1,
+    "country": "US",
+    "description": "New Year's Day is the first day of the year, celebrated on January 1st."
+  },
+  {
+    "title": "Halloween",
+    "slug": "halloween",
+    "month": 10,
+    "day": 31,
+    "country": "US",
+    "description": "Halloween is celebrated on October 31st with costumes and trick-or-treating."
+  },
+  {
+    "title": "Valentine's Day",
+    "slug": "valentines-day",
+    "month": 2,
+    "day": 14,
+    "country": "US",
+    "description": "Valentine's Day is celebrated on February 14th as a day of love and romance."
+  },
+  {
+    "title": "Independence Day",
+    "slug": "independence-day",
+    "month": 7,
+    "day": 4,
+    "country": "US",
+    "description": "Independence Day celebrates the signing of the Declaration of Independence on July 4, 1776."
+  },
+  {
+    "title": "St. Patrick's Day",
+    "slug": "st-patricks-day",
+    "month": 3,
+    "day": 17,
+    "country": "US",
+    "description": "St. Patrick's Day is celebrated on March 17th to honor the patron saint of Ireland."
+  },
+  {
+    "title": "New Year's Eve",
+    "slug": "new-years-eve",
+    "month": 12,
+    "day": 31,
+    "country": "US",
+    "description": "New Year's Eve is the last day of the year, celebrated on December 31st."
+  },
+  {
+    "title": "Thanksgiving",
+    "slug": "thanksgiving",
+    "month": 11,
+    "day": 27,
+    "country": "US",
+    "description": "Thanksgiving is celebrated on the fourth Thursday of November in the United States."
+  }
+]
