@@ -1,0 +1,52 @@
+<%= render "shared/structured_data", schema: @schema %>
+
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">Time Until Calculator</h1>
+  <p class="text-slate-500 mb-8">Find out how long until any future date with a live countdown.</p>
+
+  <%= form_with url: time_until_calculator_path, method: :get do |f| %>
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <label class="block text-sm font-medium text-slate-700 mb-2">Select a future date</label>
+      <%= f.date_field :date,
+            value: params[:date],
+            min: Date.today + 1,
+            class: "w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+
+      <% if @error %>
+        <p class="mt-3 text-sm text-red-600"><%= @error %></p>
+      <% end %>
+
+      <%= f.submit "Start Countdown", class: "mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg cursor-pointer transition-colors" %>
+    </div>
+  <% end %>
+
+  <% if @result && !@result.is_past %>
+    <%= render "shared/result_card" do %>
+      <p class="text-lg font-semibold text-slate-700 mb-6">
+        <%= @input_date.strftime("%B %-d, %Y") %> is in
+        <span class="text-blue-600">
+          <%= [@result.years > 0 ? "#{@result.years} #{"year".pluralize(@result.years)}" : nil,
+               @result.months > 0 ? "#{@result.months} #{"month".pluralize(@result.months)}" : nil,
+               @result.days > 0 ? "#{@result.days} #{"day".pluralize(@result.days)}" : nil].compact.to_sentence %>
+        </span>.
+      </p>
+
+      <%= render "shared/countdown_display", result: @result, label: "Live countdown to #{@input_date.strftime("%B %-d, %Y")}" %>
+    <% end %>
+  <% end %>
+
+  <div class="mt-12">
+    <h2 class="text-xl font-semibold text-slate-800 mb-4">Upcoming holidays</h2>
+    <div class="flex flex-wrap gap-3">
+      <% [
+        [ "Christmas",     "countdown/christmas"    ],
+        [ "New Year's",    "countdown/new-years"    ],
+        [ "Halloween",     "countdown/halloween"    ],
+        [ "Thanksgiving",  "countdown/thanksgiving" ]
+      ].each do |label, path| %>
+        <%= link_to label, "/#{path}",
+              class: "text-sm bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 px-3 py-1.5 rounded-full transition-colors" %>
+      <% end %>
+    </div>
+  </div>
+</div>

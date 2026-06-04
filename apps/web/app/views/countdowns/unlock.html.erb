@@ -1,0 +1,27 @@
+<div class="max-w-sm mx-auto mt-16">
+  <div class="text-center mb-8">
+    <div class="text-4xl mb-4">🔒</div>
+    <h1 class="text-2xl font-bold text-slate-900">Private Countdown</h1>
+    <p class="text-slate-500 mt-2">This countdown is password protected. Enter the password to view it.</p>
+  </div>
+
+  <%= form_with url: authenticate_countdown_path(@countdown.token), method: :post do |f| %>
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <% if @error %>
+        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+          <%= @error %>
+        </div>
+      <% end %>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+        <%= f.password_field :password,
+              autofocus: true,
+              class: "w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      </div>
+
+      <%= f.submit "Unlock →",
+            class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg cursor-pointer transition-colors" %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%= display_meta_tags site: "Time Ago Calculator" %>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-slate-50 text-slate-900 min-h-screen">
+    <header class="bg-white border-b border-slate-200 shadow-sm">
+      <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+        <%= link_to root_path, class: "text-xl font-bold text-blue-600 hover:text-blue-700" do %>
+          Time Ago Calculator
+        <% end %>
+        <nav class="hidden sm:flex gap-6 text-sm text-slate-600">
+          <%= link_to "Time Ago",       time_ago_calculator_path,        class: "hover:text-blue-600" %>
+          <%= link_to "Time Until",     time_until_calculator_path,      class: "hover:text-blue-600" %>
+          <%= link_to "Date Diff",      date_difference_calculator_path, class: "hover:text-blue-600" %>
+          <%= link_to "Age",            age_calculator_path,             class: "hover:text-blue-600" %>
+        </nav>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-10">
+      <%= yield %>
+    </main>
+
+    <footer class="border-t border-slate-200 mt-16 py-8 text-center text-sm text-slate-400">
+      <p>&copy; <%= Date.today.year %> timeagocalculator.com</p>
+    </footer>
+  </body>
+</html>

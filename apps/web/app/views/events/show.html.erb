@@ -1,0 +1,52 @@
+<%= render "shared/structured_data", schema: @schema %>
+
+<div class="max-w-2xl mx-auto">
+  <nav class="text-sm text-slate-400 mb-6">
+    <%= link_to "Home", root_path, class: "hover:text-blue-600" %> /
+    <%= link_to "Historical Events", how_long_ago_path("moon-landing"), class: "hover:text-blue-600" %> /
+    <span class="text-slate-600"><%= @event.title %></span>
+  </nav>
+
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">How Long Ago Was <%= @event.title %>?</h1>
+
+  <% if @event.starts_at %>
+    <p class="text-slate-500 mb-8">
+      <%= @event.starts_at.strftime("%B %-d, %Y") %> •
+      <%= @event.category&.titleize %>
+    </p>
+  <% end %>
+
+  <% if @result %>
+    <%= render "shared/result_card" do %>
+      <p class="text-lg font-semibold text-slate-700 mb-6">
+        <%= @event.title %> was
+        <span class="text-blue-600"><%= @result.human %></span>.
+      </p>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <% [
+          [ @result.years,      "Years"      ],
+          [ @result.months,     "Months"     ],
+          [ @result.days,       "Days"       ],
+          [ @result.total_days, "Total Days" ]
+        ].each do |value, label| %>
+          <div class="text-center bg-slate-50 rounded-xl p-4">
+            <div class="text-2xl font-bold text-blue-700"><%= number_with_delimiter(value) %></div>
+            <div class="text-xs text-slate-500 mt-1"><%= label %></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if @event.description.present? %>
+    <div class="mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-slate-800 mb-3">About this event</h2>
+      <p class="text-slate-600"><%= @event.description %></p>
+    </div>
+  <% end %>
+
+  <div class="mt-8">
+    <%= link_to "Calculate another date →", time_ago_calculator_path, class: "text-blue-600 hover:underline font-medium" %>
+  </div>
+</div>

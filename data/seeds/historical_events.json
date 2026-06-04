@@ -1,0 +1,66 @@
+[
+  {
+    "title": "Moon Landing",
+    "slug": "moon-landing",
+    "starts_at": "1969-07-20T20:17:00Z",
+    "category": "historical",
+    "source": "NASA",
+    "description": "Apollo 11 landed on the Moon on July 20, 1969. Neil Armstrong became the first human to walk on the lunar surface."
+  },
+  {
+    "title": "Fall of the Berlin Wall",
+    "slug": "fall-of-berlin-wall",
+    "starts_at": "1989-11-09T00:00:00Z",
+    "category": "historical",
+    "source": "wikipedia",
+    "description": "The Berlin Wall fell on November 9, 1989, marking the end of the Cold War division of Germany."
+  },
+  {
+    "title": "End of World War II",
+    "slug": "world-war-ii-end",
+    "starts_at": "1945-09-02T00:00:00Z",
+    "category": "historical",
+    "source": "wikipedia",
+    "description": "World War II ended on September 2, 1945 with Japan's formal surrender aboard the USS Missouri."
+  },
+  {
+    "title": "COVID-19 Pandemic Declaration",
+    "slug": "covid-pandemic",
+    "starts_at": "2020-03-11T00:00:00Z",
+    "category": "historical",
+    "source": "WHO",
+    "description": "The World Health Organization declared COVID-19 a global pandemic on March 11, 2020."
+  },
+  {
+    "title": "9/11 Attacks",
+    "slug": "september-11",
+    "starts_at": "2001-09-11T08:46:00Z",
+    "category": "historical",
+    "source": "wikipedia",
+    "description": "On September 11, 2001, coordinated terrorist attacks struck New York City, Washington D.C., and Pennsylvania."
+  },
+  {
+    "title": "First iPhone Release",
+    "slug": "first-iphone",
+    "starts_at": "2007-06-29T00:00:00Z",
+    "category": "technology",
+    "source": "Apple",
+    "description": "Apple released the first iPhone on June 29, 2007, revolutionizing the smartphone industry."
+  },
+  {
+    "title": "Apollo 11 Launch",
+    "slug": "apollo-11-launch",
+    "starts_at": "1969-07-16T13:32:00Z",
+    "category": "space",
+    "source": "NASA",
+    "description": "Apollo 11 launched from Kennedy Space Center on July 16, 1969, beginning the historic journey to the Moon."
+  },
+  {
+    "title": "Titanic Sinking",
+    "slug": "titanic-sinking",
+    "starts_at": "1912-04-15T02:20:00Z",
+    "category": "historical",
+    "source": "wikipedia",
+    "description": "The RMS Titanic sank on April 15, 1912 after striking an iceberg, claiming over 1,500 lives."
+  }
+]

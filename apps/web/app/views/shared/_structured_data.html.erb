@@ -1,0 +1,3 @@
+<% Array(schema).each do |s| %>
+  <script type="application/ld+json"><%= s.to_json.html_safe %></script>
+<% end %>

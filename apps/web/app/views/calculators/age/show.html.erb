@@ -1,0 +1,64 @@
+<%= render "shared/structured_data", schema: @schema %>
+
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">Age Calculator</h1>
+  <p class="text-slate-500 mb-8">Find out your exact age in years, months, and days.</p>
+
+  <%= form_with url: age_calculator_path, method: :get do |f| %>
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <label class="block text-sm font-medium text-slate-700 mb-2">Date of birth</label>
+      <%= f.date_field :birthdate,
+            value: params[:birthdate],
+            max: Date.today,
+            class: "w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+
+      <% if @error %>
+        <p class="mt-3 text-sm text-red-600"><%= @error %></p>
+      <% end %>
+
+      <%= f.submit "Calculate Age", class: "mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg cursor-pointer transition-colors" %>
+    </div>
+  <% end %>
+
+  <% if @result %>
+    <%= render "shared/result_card" do %>
+      <p class="text-lg font-semibold text-slate-700 mb-6">
+        You are <span class="text-blue-600 text-2xl font-bold"><%= @result.years %></span> years old.
+      </p>
+
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <% [
+          [ @result.years,  "Years"  ],
+          [ @result.months, "Months" ],
+          [ @result.days,   "Days"   ]
+        ].each do |value, label| %>
+          <div class="text-center bg-slate-50 rounded-xl p-4">
+            <div class="text-2xl font-bold text-blue-700"><%= number_with_delimiter(value) %></div>
+            <div class="text-xs text-slate-500 mt-1"><%= label %></div>
+          </div>
+        <% end %>
+      </div>
+
+      <p class="text-sm text-slate-500">
+        Your next birthday is in <span class="font-semibold text-slate-700"><%= @result.next_birthday_in_days %> days</span>.
+      </p>
+    <% end %>
+  <% end %>
+
+  <div class="mt-12">
+    <h2 class="text-xl font-semibold text-slate-800 mb-4">Celebrity ages</h2>
+    <div class="flex flex-wrap gap-3">
+      <% [
+        [ "Tom Cruise",     "tom-cruise"     ],
+        [ "Taylor Swift",   "taylor-swift"   ],
+        [ "Elon Musk",      "elon-musk"      ],
+        [ "MrBeast",        "mrbeast"        ],
+        [ "LeBron James",   "lebron-james"   ],
+        [ "Beyoncé",        "beyonce"        ]
+      ].each do |name, slug| %>
+        <%= link_to "How old is #{name}?", age_page_path(slug),
+              class: "text-sm bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 px-3 py-1.5 rounded-full transition-colors" %>
+      <% end %>
+    </div>
+  </div>
+</div>

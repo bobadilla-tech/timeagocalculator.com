@@ -1,0 +1,35 @@
+services:
+  web:
+    build:
+      context: ../../apps/web
+    volumes:
+      - ../../apps/web:/rails
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://postgres:dev@postgres:5432/web_development
+      REDIS_URL: redis://redis:6379/0
+      RAILS_ENV: development
+      SECRET_KEY_BASE: dev_secret_key_base_not_for_production
+    command: bin/rails server -b 0.0.0.0
+
+  sidekiq:
+    environment:
+      DATABASE_URL: postgres://postgres:dev@postgres:5432/web_development
+      RAILS_ENV: development
+      SECRET_KEY_BASE: dev_secret_key_base_not_for_production
+
+  postgres:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: web_development
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  caddy:
+    profiles:
+      - production

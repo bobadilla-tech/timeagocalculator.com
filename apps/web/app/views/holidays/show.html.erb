@@ -1,0 +1,25 @@
+<%= render "shared/structured_data", schema: @schema %>
+
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">How Long Until <%= @holiday.title %>?</h1>
+  <p class="text-slate-500 mb-8">
+    Next <%= @holiday.title %>:
+    <%= @holiday.next_occurrence.strftime("%B %-d, %Y") %>
+  </p>
+
+  <% if @result && !@result.is_past %>
+    <%= render "shared/result_card" do %>
+      <%= render "shared/countdown_display", result: @result, label: "Live countdown to #{@holiday.title}" %>
+    <% end %>
+  <% end %>
+
+  <% if @holiday.description.present? %>
+    <div class="mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <p class="text-slate-600"><%= @holiday.description %></p>
+    </div>
+  <% end %>
+
+  <div class="mt-8">
+    <%= link_to "Set your own countdown →", time_until_calculator_path, class: "text-blue-600 hover:underline font-medium" %>
+  </div>
+</div>

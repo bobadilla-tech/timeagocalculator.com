@@ -1,0 +1,67 @@
+<%= render "shared/structured_data", schema: @schema %>
+
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">Time Ago Calculator</h1>
+  <p class="text-slate-500 mb-8">Find out how long ago any date was in years, months, and days.</p>
+
+  <%= form_with url: time_ago_calculator_path, method: :get, data: { controller: "time-ago" } do |f| %>
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <label class="block text-sm font-medium text-slate-700 mb-2">Select a date</label>
+      <%= f.date_field :date,
+            value: params[:date],
+            max: Date.today,
+            class: "w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500",
+            data: { action: "change->time-ago#preview", "time-ago-target": "dateInput" } %>
+
+      <% if @error %>
+        <p class="mt-3 text-sm text-red-600"><%= @error %></p>
+      <% end %>
+
+      <%= f.submit "Calculate", class: "mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg cursor-pointer transition-colors" %>
+    </div>
+  <% end %>
+
+  <% if @result %>
+    <%= render "shared/result_card" do %>
+      <p class="text-lg font-semibold text-slate-700 mb-6">
+        <%= @input_date.strftime("%B %-d, %Y") %> was
+        <span class="text-blue-600"><%= @result.human %></span>.
+      </p>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+        <% [
+          [ @result.years,      "Years"   ],
+          [ @result.months,     "Months"  ],
+          [ @result.days,       "Days"    ],
+          [ @result.total_days, "Total Days" ],
+          [ @result.hours,      "Hours"   ],
+          [ @result.minutes,    "Minutes" ]
+        ].each do |value, label| %>
+          <div class="text-center bg-slate-50 rounded-xl p-4">
+            <div class="text-2xl font-bold text-blue-700"><%= number_with_delimiter(value) %></div>
+            <div class="text-xs text-slate-500 mt-1"><%= label %></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div class="mt-12 prose prose-slate max-w-none">
+    <h2 class="text-xl font-semibold text-slate-800">How to use</h2>
+    <p class="text-slate-600 mt-2">Select any past date and click Calculate. You'll get the exact difference in years, months, days, hours, and minutes from that date to today.</p>
+
+    <h2 class="text-xl font-semibold text-slate-800 mt-6">Popular historical dates</h2>
+    <div class="flex flex-wrap gap-3 mt-3">
+      <% [
+        [ "Moon Landing (1969)",    "1969-07-20" ],
+        [ "Berlin Wall Fall (1989)", "1989-11-09" ],
+        [ "Y2K / Jan 1, 2000",      "2000-01-01" ],
+        [ "9/11 (2001)",            "2001-09-11" ],
+        [ "COVID Pandemic (2020)",  "2020-03-11" ]
+      ].each do |label, date| %>
+        <%= link_to label, time_ago_calculator_path(date: date),
+              class: "text-sm bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 px-3 py-1.5 rounded-full transition-colors" %>
+      <% end %>
+    </div>
+  </div>
+</div>

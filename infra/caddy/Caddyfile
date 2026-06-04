@@ -1,0 +1,14 @@
+timeagocalculator.com, www.timeagocalculator.com {
+  redir https://timeagocalculator.com{uri} permanent
+
+  reverse_proxy web:3000
+
+  encode gzip zstd
+
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+}

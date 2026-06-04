@@ -1,0 +1,14 @@
+<%# locals: (result:, label:) %>
+<div data-controller="countdown"
+     data-countdown-target-timestamp-value="<%= result.target_timestamp_ms %>">
+  <p class="text-slate-500 text-sm mb-4"><%= label %></p>
+  <div class="grid grid-cols-3 sm:grid-cols-6 gap-4 text-center">
+    <% [ [:years, "years"], [:months, "months"], [:days, "days"], [:hours, "hours"], [:minutes, "minutes"], [:seconds, "seconds"] ].each do |field, label_text| %>
+      <div class="bg-blue-50 rounded-xl p-4">
+        <div class="text-3xl font-bold text-blue-700"
+             data-countdown-target="<%= field %>"><%= result.send(field) if result.respond_to?(field) %></div>
+        <div class="text-xs text-slate-500 mt-1"><%= label_text %></div>
+      </div>
+    <% end %>
+  </div>
+</div>
