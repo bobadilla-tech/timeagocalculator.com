@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["passwordFields", "isPublicField", "visibilityRadio"]
+  static targets = ["passwordFields", "isPublicField", "visibilityRadio", "publishFields"]
 
   connect() {
     this.updateVisibility()
@@ -14,13 +14,22 @@ export default class extends Controller {
   updateVisibility() {
     const selected = this.visibilityValue()
     const showPassword = selected === "protected"
+    const showPublish  = selected !== "private"
 
     if (this.hasPasswordFieldsTarget) {
-      this.passwordFieldsTarget.hidden = !showPassword
+      this.passwordFieldsTarget.classList.toggle("hidden", !showPassword)
       if (!showPassword) {
         this.passwordFieldsTarget.querySelectorAll("input[type=password]").forEach(el => {
           el.value = ""
         })
+      }
+    }
+
+    if (this.hasPublishFieldsTarget) {
+      this.publishFieldsTarget.classList.toggle("hidden", !showPublish)
+      if (!showPublish) {
+        const cb = this.publishFieldsTarget.querySelector("input[type=checkbox]")
+        if (cb) cb.checked = false
       }
     }
 

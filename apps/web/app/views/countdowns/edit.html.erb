@@ -95,6 +95,20 @@
         </div>
       </div>
 
+      <%# Feature on profile — hidden when private %>
+      <div data-countdown-form-target="publishFields"
+           class="<%= initial_visibility == "private" ? "hidden" : "" %>">
+        <label class="flex items-start gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-100">
+          <%= f.check_box :published,
+                checked: @countdown.published?,
+                class: "mt-0.5 h-4 w-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500" %>
+          <div>
+            <span class="block text-sm font-medium text-slate-800">Feature on my profile</span>
+            <span class="block text-xs text-slate-500 mt-0.5">Show this countdown on your public profile page (<%= link_to "@#{Current.user.username || "your profile"}", Current.user.username ? user_profile_path(Current.user.username) : "#", class: "underline" %>)</span>
+          </div>
+        </label>
+      </div>
+
       <div class="flex gap-3 pt-2">
         <%= f.submit "Save changes",
               class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg cursor-pointer transition-colors" %>
