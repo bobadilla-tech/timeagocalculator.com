@@ -73,6 +73,7 @@
   font-family: <%= font_family %>;
   width: 100%;
   min-height: 140px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -91,7 +92,7 @@
     </p>
   <% end %>
 
-  <div style="display: flex; gap: <%= gap %>px; align-items: flex-start; margin-bottom: 14px;">
+  <div style="display: flex; flex-direction: <%= layout == "vertical" ? "column" : "row" %>; flex-wrap: wrap; justify-content: center; gap: <%= gap %>px; align-items: <%= layout == "vertical" ? "center" : "flex-start" %>; margin-bottom: 14px;">
     <% units.each do |unit| %>
       <div style="min-width: <%= unit_width %>px; text-align: center;">
         <div id="w-<%= unit %>"

@@ -134,16 +134,19 @@ export default class extends Controller {
       ? `<p style="color:${cfg.labelColor};font-size:${dateSize}px;margin-bottom:14px;opacity:0.85;">${this.formatDate(cfg.targetDate, cfg.dateFormat)}</p>`
       : ""
 
+    const flexDir   = cfg.layout === "vertical" ? "column" : "row"
+    const flexAlign = cfg.layout === "vertical" ? "center" : "flex-start"
+
     const unitsHtml = (cfg.units.length ? cfg.units : ["days", "hours", "minutes", "seconds"]).map(u => `
       <div style="min-width:${unitWidth}px;text-align:center;">
         <div id="pw-${u}" style="color:${cfg.numColor};font-size:${numSize}px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;">0</div>
         <div style="color:${cfg.labelColor};font-size:${labelSize}px;text-transform:uppercase;letter-spacing:0.1em;margin-top:5px;font-weight:500;">${u}</div>
       </div>`).join("")
 
-    return `<div style="background:${cfg.bg};border-radius:${cfg.radius}px;box-shadow:${shadow};padding:${padV}px ${padH}px;font-family:${fontFamily};width:100%;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+    return `<div style="background:${cfg.bg};border-radius:${cfg.radius}px;box-shadow:${shadow};padding:${padV}px ${padH}px;font-family:${fontFamily};width:100%;min-height:140px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
       ${titleHtml}
       ${dateHtml}
-      <div style="display:flex;gap:${gap}px;align-items:flex-start;margin-bottom:14px;">${unitsHtml}</div>
+      <div style="display:flex;flex-direction:${flexDir};flex-wrap:wrap;justify-content:center;gap:${gap}px;align-items:${flexAlign};margin-bottom:14px;">${unitsHtml}</div>
       <p style="color:rgba(255,255,255,0.35);font-size:10px;margin-top:4px;font-family:system-ui,sans-serif;">
         Countdown widget powered by <a href="https://timeagocalculator.com" style="color:rgba(255,255,255,0.45);">TimeAgoCalculator.com</a>
       </p>
