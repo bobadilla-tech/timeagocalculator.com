@@ -3,7 +3,13 @@
 ## Maintainer trick
 
 ```sh
-cd ~/server/timeagocalculator.com/apps/web && git pull && docker compose up -d --build
+cd ~/server/timeagocalculator.com && git pull && cd infra/docker && docker compose -f compose.yml up -d --build
+```
+
+Or use the deploy script:
+
+```sh
+~/server/timeagocalculator.com/infra/scripts/deploy.sh
 ```
 
 ---
@@ -11,28 +17,31 @@ cd ~/server/timeagocalculator.com/apps/web && git pull && docker compose up -d -
 ## Architecture
 
 ```
-User → Caddy (TLS + gzip) → Rails (port 3000) → PostgreSQL + Redis
+User → Caddy (TLS + gzip + HSTS) → Rails (port 3000) → PostgreSQL + Redis
 ```
 
-**Docker services (docker-compose.yml):**
+**Docker services (`infra/docker/compose.yml`):**
 
 | Service | Image | Role |
 |---------|-------|------|
-| `web`   | local Dockerfile | Rails app |
-| `db`    | postgres:16-alpine | Database |
-| `redis` | redis:7-alpine | Cache / sessions |
+| `web` | local Dockerfile | Rails app |
+| `sidekiq` | local Dockerfile | Background jobs |
+| `postgres` | postgres:17-alpine | Database |
+| `redis` | redis:7-alpine | Cache / queues |
 | `caddy` | caddy:2-alpine | Reverse proxy + auto-HTTPS |
 
-Caddy obtains a Let's Encrypt certificate automatically on first boot. No Certbot needed.
+Caddy config: `infra/caddy/Caddyfile`
+- Redirects `www` → apex
+- HSTS, X-Frame-Options, Referrer-Policy headers
 
 ---
 
 ## Pre-Deployment Checklist
 
 - [ ] Hetzner VPS created and accessible via SSH
-- [ ] Domain purchased with an A record pointing to the VPS IP
-- [ ] `config/master.key` available (keep offline backup)
-- [ ] SSH key added to GitHub (or use HTTPS clone)
+- [ ] `timeagocalculator.com` A records pointed to VPS IP in Cloudflare
+- [ ] `apps/web/config/master.key` backed up offline
+- [ ] SSH key added to GitHub
 
 ---
 
@@ -40,18 +49,15 @@ Caddy obtains a Let's Encrypt certificate automatically on first boot. No Certbo
 
 ### 1.1 Create VPS
 
-**Recommended:**
-
 - **Server Type:** CX22 (2 vCPU, 4 GB RAM) — ~€4.35/month
 - **OS:** Ubuntu 24.04 LTS
-- **Location:** Falkenstein (fsn1) or Ashburn (ash) based on audience
-- **Backups:** Enable (adds ~20% — worth it)
+- **Location:** Falkenstein (fsn1) or Ashburn (ash)
+- **Backups:** Enable
 
-### 1.2 Initial Server Setup
+### 1.2 Initial Setup
 
 ```bash
 ssh root@YOUR_VPS_IP
-
 apt update && apt upgrade -y
 ```
 
@@ -59,26 +65,21 @@ apt update && apt upgrade -y
 
 ```bash
 curl -fsSL https://get.docker.com | sh
-
-# Verify
 docker --version
 docker compose version
 ```
 
-### 1.4 Configure Firewall
+### 1.4 Firewall
 
 ```bash
 apt install ufw -y
-
-ufw allow 22/tcp    # SSH
-ufw allow 80/tcp    # HTTP
-ufw allow 443/tcp   # HTTPS
+ufw allow 22/tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
 ufw enable
-
-ufw status verbose
 ```
 
-### 1.5 Create Deploy User (recommended)
+### 1.5 Create Deploy User
 
 ```bash
 adduser deploy
@@ -89,40 +90,29 @@ su - deploy
 ### 1.6 Clone Repository
 
 ```bash
-# HTTPS
-git clone https://github.com/YOUR_ORG/timeagocalculator.com.git ~/server/timeagocalculator.com
-
-# SSH (if deploy key configured)
-git clone git@github.com:YOUR_ORG/timeagocalculator.com.git ~/server/timeagocalculator.com
-
-cd ~/server/timeagocalculator.com/apps/web
+git clone git@github.com:bobadilla-tech/timeagocalculator.com.git ~/server/timeagocalculator.com
+cd ~/server/timeagocalculator.com
 ```
 
 ---
 
 ## Part 2: Environment Configuration
 
-### 2.1 Create `.env` from the example
+### 2.1 Create `.env`
 
 ```bash
-cp .env.production.example .env
+cd ~/server/timeagocalculator.com/infra/docker
+cp .env.example .env
 nano .env
+chmod 600 .env
 ```
 
-Fill in every value:
+Fill in:
 
 ```bash
-POSTGRES_USER=rails
 POSTGRES_PASSWORD=<strong random password>
-POSTGRES_DB=timeagocalculator
-
-DATABASE_URL=postgres://rails:<same password>@db:5432/timeagocalculator
-REDIS_URL=redis://redis:6379/0
-
-RAILS_MASTER_KEY=<contents of config/master.key>
+RAILS_MASTER_KEY=<contents of apps/web/config/master.key>
 SECRET_KEY_BASE=<generate below>
-
-RAILS_LOG_LEVEL=info
 ```
 
 ### 2.2 Generate `SECRET_KEY_BASE`
@@ -131,66 +121,47 @@ RAILS_LOG_LEVEL=info
 openssl rand -hex 64
 ```
 
-### 2.3 Set file permissions
-
-```bash
-chmod 600 .env
-```
-
 ---
 
-## Part 3: Configure Domain
+## Part 3: DNS (Cloudflare)
 
-### 3.1 Update Caddyfile
+Domain `timeagocalculator.com` is on Cloudflare.
 
-```bash
-nano Caddyfile
-```
+1. Go to [dash.cloudflare.com](https://dash.cloudflare.com) → `timeagocalculator.com` → DNS
+2. Add:
 
-Replace `yourdomain.com` with your actual domain:
+| Type | Name | Content | Proxy status |
+|------|------|---------|--------------|
+| A | `@` | `YOUR_VPS_IP` | Proxied ☁️ |
+| A | `www` | `YOUR_VPS_IP` | Proxied ☁️ |
 
-```caddyfile
-timeagocalculator.com {
-    encode gzip
-    reverse_proxy web:3000
-}
-```
-
-### 3.2 DNS
-
-Point an A record to the VPS IP before deploying (Caddy needs to reach Let's Encrypt):
-
-| Type | Name | Content |
-|------|------|---------|
-| A | @ | YOUR_VPS_IP |
-| A | www | YOUR_VPS_IP |
+Cloudflare proxy is fine — Let's Encrypt HTTP-01 challenge works through it. Wait ~1 min for propagation before deploying.
 
 ---
 
 ## Part 4: Deploy
 
 ```bash
-cd ~/server/timeagocalculator.com/apps/web
-
-docker compose up -d --build
+cd ~/server/timeagocalculator.com/infra/docker
+docker compose -f compose.yml up -d --build
 ```
 
-This builds the Rails image, starts all services, and runs `db:prepare` (migrations + seed) automatically via `bin/docker-entrypoint`.
+The `bin/docker-entrypoint` runs `db:prepare` (create + migrate + seed) automatically on first start.
 
 ### Check status
 
 ```bash
-docker compose ps
-docker compose logs -f web
-docker compose logs caddy
+docker compose -f compose.yml ps
+docker compose -f compose.yml logs -f web
+docker compose -f compose.yml logs caddy
 ```
 
 ### Verify SSL
 
-After ~30 seconds Caddy fetches the certificate automatically:
+After ~30 seconds Caddy fetches the certificate:
 
 ```bash
-curl -I https://yourdomain.com/up
+curl -I https://timeagocalculator.com/up
 # HTTP/2 200
 ```
 
@@ -198,19 +169,14 @@ curl -I https://yourdomain.com/up
 
 ## Part 5: Post-Deployment
 
-### 5.1 Smoke test
+### Smoke test
 
 ```bash
-# Health check
-curl https://yourdomain.com/up
-
-# Check logs for errors
-docker compose logs web | tail -50
+curl https://timeagocalculator.com/up
+docker compose -f compose.yml logs web | tail -50
 ```
 
-### 5.2 Set up automatic backups
-
-Create the backup script:
+### Set up automatic backups
 
 ```bash
 nano /home/deploy/backup-db.sh
@@ -223,20 +189,16 @@ BACKUP_DIR="$HOME/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 mkdir -p "$BACKUP_DIR"
 
-docker compose -f "$HOME/server/timeagocalculator.com/apps/web/docker-compose.yml" \
-  exec -T db pg_dump -U "${POSTGRES_USER:-rails}" timeagocalculator \
+docker compose -f "$HOME/server/timeagocalculator.com/infra/docker/compose.yml" \
+  exec -T postgres pg_dump -U postgres web_production \
   > "$BACKUP_DIR/backup_$TIMESTAMP.sql"
 
-# Keep last 14 days
 find "$BACKUP_DIR" -name "backup_*.sql" -mtime +14 -delete
-
 echo "Backup done: backup_$TIMESTAMP.sql"
 ```
 
 ```bash
 chmod +x /home/deploy/backup-db.sh
-
-# Add to crontab — daily at 3 AM
 crontab -e
 # Add: 0 3 * * * /home/deploy/backup-db.sh >> /home/deploy/backup.log 2>&1
 ```
@@ -245,34 +207,33 @@ crontab -e
 
 ## Part 6: Updating Production
 
-Standard update — pulls latest code and rebuilds changed layers only:
-
 ```bash
-cd ~/server/timeagocalculator.com/apps/web
+cd ~/server/timeagocalculator.com
 git pull
-docker compose up -d --build
+cd infra/docker
+docker compose -f compose.yml up -d --build
 ```
 
-Migrations run automatically on container start via `bin/docker-entrypoint` (`db:prepare`).
+Migrations run automatically on container start.
 
 ### Restart without rebuild
 
 ```bash
-docker compose restart web
+docker compose -f compose.yml restart web
 ```
 
-### Clean rebuild (if Docker cache is stale)
+### Clean rebuild
 
 ```bash
-docker compose build --no-cache web
-docker compose up -d
+docker compose -f compose.yml build --no-cache web
+docker compose -f compose.yml up -d
 ```
 
-### Wipe database and redeploy (destructive — loses all data)
+### Wipe database ⚠️ destructive
 
 ```bash
-docker compose down -v   # -v removes volumes
-docker compose up -d --build
+docker compose -f compose.yml down -v
+docker compose -f compose.yml up -d --build
 ```
 
 ---
@@ -280,18 +241,10 @@ docker compose up -d --build
 ## Part 7: Monitoring
 
 ```bash
-# Live resource usage
-docker compose stats
-
-# All service logs
-docker compose logs -f
-
-# Web logs only
-docker compose logs -f web
-
-# Disk usage
+docker compose -f compose.yml stats
+docker compose -f compose.yml logs -f
+docker compose -f compose.yml logs -f web
 df -h
-du -sh /var/lib/docker/volumes/*
 ```
 
 ---
@@ -301,35 +254,25 @@ du -sh /var/lib/docker/volumes/*
 ### Rails won't start
 
 ```bash
-docker compose logs web
+docker compose -f compose.yml logs web
 ```
 
-Common causes:
-- **`RAILS_MASTER_KEY` missing or wrong** — check `.env` matches `config/master.key`
-- **`DATABASE_URL` wrong** — verify hostname is `db` (the Compose service name)
-- **Port conflict** — ensure nothing else uses port 80/443
+- `RAILS_MASTER_KEY` wrong → check `.env` matches `apps/web/config/master.key`
+- `DATABASE_URL` issues → service name in compose is `postgres` not `db`
 
 ### Caddy can't get SSL certificate
 
-1. Verify DNS has propagated: `dig yourdomain.com`
-2. Confirm ports 80 and 443 are open in UFW
-3. Check Caddy logs: `docker compose logs caddy`
-4. Wait 2–3 min after DNS propagation for Let's Encrypt to issue
+```bash
+docker compose -f compose.yml logs caddy
+dig timeagocalculator.com        # verify DNS propagated
+```
+
+Confirm UFW allows 80 and 443. Wait 2–3 min after DNS propagation.
 
 ### Database connection errors
 
 ```bash
-docker compose ps db          # Should be "healthy"
-docker compose logs db        # Look for errors
-docker compose restart db
-```
-
-### Out of disk space
-
-```bash
-# Remove unused Docker images/containers
-docker system prune -f
-
-# Check volume sizes
-du -sh /var/lib/docker/volumes/*
+docker compose -f compose.yml ps postgres
+docker compose -f compose.yml logs postgres
+docker compose -f compose.yml restart postgres
 ```

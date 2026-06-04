@@ -7,6 +7,7 @@ services:
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/web_production
       REDIS_URL: redis://redis:6379/0
       RAILS_ENV: production
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       RAILS_LOG_TO_STDOUT: "true"
     depends_on:
@@ -27,6 +28,7 @@ services:
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/web_production
       REDIS_URL: redis://redis:6379/0
       RAILS_ENV: production
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       RAILS_LOG_TO_STDOUT: "true"
     depends_on:
