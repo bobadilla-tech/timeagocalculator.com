@@ -1,6 +1,14 @@
 <div class="max-w-2xl mx-auto">
   <h1 class="text-3xl font-bold text-slate-900 mb-2">Create a Countdown</h1>
-  <p class="text-slate-500 mb-8">Pick a date, give it a name, and get a shareable link instantly.</p>
+  <p class="text-slate-500 mb-6">Pick a date, give it a name, and get a shareable link instantly.</p>
+
+  <% unless Current.user %>
+    <div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800">
+      <strong>Want to manage this later?</strong>
+      <%= link_to "Create a free account", new_registration_path, class: "underline font-medium" %>
+      to edit, delete, and publish your countdowns on your own profile page.
+    </div>
+  <% end %>
 
   <%= form_with model: @countdown, url: countdowns_path,
         data: { controller: "countdown-form" } do |f| %>
@@ -40,41 +48,58 @@
               class: "w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
       </div>
 
-      <%# Privacy toggle %>
-      <div class="flex items-center gap-3">
-        <%= f.check_box :is_public,
-              checked: @countdown.is_public?,
-              class: "h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500",
-              data: {
-                action: "change->countdown-form#togglePassword",
-                "countdown-form-target": "isPublicCheckbox"
-              } %>
-        <label class="text-sm text-slate-700">
-          Public — anyone with the link can view
-        </label>
+      <%# Visibility selector %>
+      <%
+        initial_visibility = if !@countdown.is_public?
+          "private"
+        elsif @countdown.password_digest.present?
+          "protected"
+        else
+          "open"
+        end
+      %>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Visibility</label>
+        <div class="space-y-2">
+          <% [
+            ["open",      "Open",      "Anyone with the link can view — no password needed"],
+            ["protected", "Protected", "Anyone with the link and correct password can view"],
+            ["private",   "Private",   "Only you can view (requires an account)"]
+          ].each do |value, label, hint| %>
+            <label class="flex items-start gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 has-checked:border-blue-500 has-checked:bg-blue-50">
+              <input type="radio" name="visibility" value="<%= value %>"
+                     <%= "checked" if initial_visibility == value %>
+                     class="mt-0.5 h-4 w-4 text-blue-600 border-slate-300 focus:ring-blue-500"
+                     data-action="change->countdown-form#setVisibility"
+                     data-countdown-form-target="visibilityRadio" />
+              <div>
+                <span class="block text-sm font-medium text-slate-800"><%= label %></span>
+                <span class="block text-xs text-slate-500 mt-0.5"><%= hint %></span>
+              </div>
+            </label>
+          <% end %>
+        </div>
+        <%= f.hidden_field :is_public, value: @countdown.is_public? ? "1" : "0",
+              data: { "countdown-form-target": "isPublicField" } %>
       </div>
 
-      <%# Password fields — hidden when public %>
+      <%# Password fields — shown only for "protected" %>
       <div data-countdown-form-target="passwordFields"
-           class="space-y-4 <%= @countdown.is_public? ? "hidden" : "" %>">
-        <div class="border-t border-slate-100 pt-4">
-          <p class="text-sm text-slate-500 mb-4">Set a password to protect this countdown.</p>
-
-          <div class="space-y-3">
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
-              <%= f.password_field :password,
-                    class: "w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 #{"border-red-400" if @countdown.errors[:password].any?}" %>
-              <% if @countdown.errors[:password].any? %>
-                <p class="mt-1 text-sm text-red-600"><%= @countdown.errors[:password].first %></p>
-              <% end %>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Confirm password</label>
-              <%= f.password_field :password_confirmation,
-                    class: "w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
-            </div>
+           class="<%= initial_visibility == "protected" ? "" : "hidden" %>">
+        <div class="border-t border-slate-100 pt-4 space-y-3">
+          <p class="text-sm text-slate-500">Set a password to protect this countdown.</p>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <%= f.password_field :password,
+                  class: "w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 #{"border-red-400" if @countdown.errors[:password].any?}" %>
+            <% if @countdown.errors[:password].any? %>
+              <p class="mt-1 text-sm text-red-600"><%= @countdown.errors[:password].first %></p>
+            <% end %>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Confirm password</label>
+            <%= f.password_field :password_confirmation,
+                  class: "w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
           </div>
         </div>
       </div>

@@ -3,6 +3,12 @@
     <div>
       <h1 class="text-3xl font-bold text-slate-900">Dashboard</h1>
       <p class="text-slate-500 mt-1"><%= Current.user.email_address %></p>
+      <% if Current.user.username %>
+        <p class="text-xs text-slate-400 mt-0.5">
+          Public profile:
+          <%= link_to "/u/#{Current.user.username}", user_profile_path(Current.user.username), class: "text-blue-600 hover:underline" %>
+        </p>
+      <% end %>
     </div>
     <%= link_to "New countdown +", new_countdown_path,
           class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors" %>
@@ -40,16 +46,19 @@
         <% @my_countdowns.each do |cd| %>
           <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-4">
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <% unless cd.is_public? %>
-                  <span class="text-xs font-medium bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Private</span>
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <% if cd.is_public? && cd.protected? %>
+                  <span class="text-xs font-medium bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Protected</span>
+                <% elsif !cd.is_public? %>
+                  <span class="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">Private</span>
                 <% end %>
                 <% if cd.locked? %>
                   <span class="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">Locked</span>
                 <% end %>
-                <span class="text-xs text-slate-400">
-                  ♥ <%= cd.favorites_count %>
-                </span>
+                <% if cd.published? %>
+                  <span class="text-xs font-medium bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Published</span>
+                <% end %>
+                <span class="text-xs text-slate-400">♥ <%= cd.favorites_count %></span>
               </div>
               <p class="font-semibold text-slate-900 truncate">
                 <%= link_to cd.title, shared_countdown_path(cd.token), class: "hover:text-blue-600" %>
@@ -59,10 +68,17 @@
               </p>
             </div>
 
-            <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center gap-2 shrink-0 flex-wrap justify-end">
               <% unless cd.locked? %>
                 <%= link_to "Edit", edit_countdown_path(cd.token),
                       class: "text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-lg transition-colors" %>
+              <% end %>
+
+              <% if cd.is_public? %>
+                <%= button_to cd.published? ? "Unpublish" : "Publish",
+                      toggle_publish_countdown_path(cd.token),
+                      method: :patch,
+                      class: "text-xs #{cd.published? ? "bg-slate-100 text-slate-600 hover:bg-slate-200" : "bg-green-100 text-green-700 hover:bg-green-200"} font-medium px-3 py-1.5 rounded-lg transition-colors cursor-pointer" %>
               <% end %>
 
               <%= button_to cd.locked? ? "Unlock" : "Lock",
@@ -105,7 +121,7 @@
               <p class="text-xs text-slate-400 mt-0.5">
                 <%= cd.target_date.strftime("%B %-d, %Y") %>
                 <% if cd.user.present? && !cd.owned_by?(Current.user) %>
-                  · by <%= cd.user.email_address %>
+                  · by <%= cd.user.username || cd.user.email_address.split("@").first %>
                 <% end %>
               </p>
             </div>

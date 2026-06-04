@@ -36,6 +36,7 @@
           <%= link_to "Time Until",     time_until_calculator_path,      class: "hover:text-blue-600" %>
           <%= link_to "Date Diff",      date_difference_calculator_path, class: "hover:text-blue-600" %>
           <%= link_to "Age",            age_calculator_path,             class: "hover:text-blue-600" %>
+          <%= link_to "Create Countdown", new_countdown_path,            class: "bg-slate-900 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg font-medium" %>
           <span class="text-slate-300">|</span>
           <% if Current.user %>
             <%= link_to "Dashboard", dashboard_path, class: "hover:text-blue-600" %>

@@ -19,11 +19,14 @@ Rails.application.routes.draw do
   delete "/c/:token",       to: "countdowns#destroy"
   get  "/c/:token/unlock",  to: "countdowns#unlock",        as: :unlock_countdown
   post "/c/:token/unlock",  to: "countdowns#authenticate",  as: :authenticate_countdown
-  patch  "/c/:token/lock",      to: "countdowns#toggle_lock",         as: :toggle_lock_countdown
-  post   "/c/:token/favorite",  to: "countdown_favorites#create",     as: :favorite_countdown
-  delete "/c/:token/favorite",  to: "countdown_favorites#destroy",    as: :unfavorite_countdown
+  patch  "/c/:token/lock",    to: "countdowns#toggle_lock",    as: :toggle_lock_countdown
+  patch  "/c/:token/publish", to: "countdowns#toggle_publish", as: :toggle_publish_countdown
+  post   "/c/:token/favorite",  to: "countdown_favorites#create",  as: :favorite_countdown
+  delete "/c/:token/favorite",  to: "countdown_favorites#destroy", as: :unfavorite_countdown
 
   get "/dashboard", to: "dashboard#index", as: :dashboard
+
+  get "/u/:username", to: "profiles#show", as: :user_profile, constraints: { username: /[a-z0-9_]+/ }
 
   get "/countdown/new", to: redirect("/countdowns/new")
 

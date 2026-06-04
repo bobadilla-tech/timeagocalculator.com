@@ -1,8 +1,8 @@
 class CountdownsController < ApplicationController
   include SeoMetaTaggable
 
-  before_action :set_countdown, only: [ :show, :edit, :update, :destroy, :unlock, :authenticate, :toggle_lock ]
-  before_action :require_ownership!, only: [ :edit, :update, :destroy, :toggle_lock ]
+  before_action :set_countdown, only: [ :show, :edit, :update, :destroy, :unlock, :authenticate, :toggle_lock, :toggle_publish ]
+  before_action :require_ownership!, only: [ :edit, :update, :destroy, :toggle_lock, :toggle_publish ]
   before_action :require_unlocked!, only: [ :edit, :update ]
 
   def new
@@ -26,7 +26,10 @@ class CountdownsController < ApplicationController
   end
 
   def show
-    unless @countdown.is_public? || password_authenticated? || @countdown.owned_by?(Current.user)
+    if !@countdown.is_public? && !@countdown.owned_by?(Current.user)
+      redirect_to root_path, alert: "This countdown is private." and return
+    end
+    if @countdown.protected? && !password_authenticated? && !@countdown.owned_by?(Current.user)
       redirect_to unlock_countdown_path(@countdown.token) and return
     end
 
@@ -61,6 +64,12 @@ class CountdownsController < ApplicationController
     @countdown.update!(locked: !@countdown.locked?)
     redirect_to shared_countdown_path(@countdown.token),
                 notice: @countdown.locked? ? "Countdown locked — no further edits allowed." : "Countdown unlocked."
+  end
+
+  def toggle_publish
+    @countdown.update!(published: !@countdown.published?)
+    redirect_to dashboard_path,
+                notice: @countdown.published? ? "Countdown published to your profile." : "Countdown removed from your profile."
   end
 
   def unlock
@@ -101,12 +110,12 @@ class CountdownsController < ApplicationController
 
   def countdown_params
     params.expect(countdown: [ :title, :target_date, :description, :is_public,
-                                :password, :password_confirmation ])
+                                :published, :password, :password_confirmation ])
   end
 
   def update_params
     params.expect(countdown: [ :title, :target_date, :description, :is_public,
-                                :password, :password_confirmation ])
+                                :published, :password, :password_confirmation ])
   end
 
   def countdown_description(countdown, result)

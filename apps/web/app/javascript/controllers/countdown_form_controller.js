@@ -1,22 +1,39 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["passwordFields", "isPublicCheckbox"]
+  static targets = ["passwordFields", "isPublicField", "visibilityRadio"]
 
   connect() {
-    this.togglePassword()
+    this.updateVisibility()
   }
 
-  togglePassword() {
-    if (!this.hasIsPublicCheckboxTarget || !this.hasPasswordFieldsTarget) return
-    const isPublic = this.isPublicCheckboxTarget.checked
-    this.passwordFieldsTarget.hidden = isPublic
+  setVisibility() {
+    this.updateVisibility()
+  }
 
-    // Clear password fields when switching back to public to avoid validation errors
-    if (isPublic) {
-      this.passwordFieldsTarget.querySelectorAll("input[type=password]").forEach(el => {
-        el.value = ""
-      })
+  updateVisibility() {
+    const selected = this.visibilityValue()
+    const showPassword = selected === "protected"
+
+    if (this.hasPasswordFieldsTarget) {
+      this.passwordFieldsTarget.hidden = !showPassword
+      if (!showPassword) {
+        this.passwordFieldsTarget.querySelectorAll("input[type=password]").forEach(el => {
+          el.value = ""
+        })
+      }
     }
+
+    if (this.hasIsPublicFieldTarget) {
+      this.isPublicFieldTarget.value = (selected === "private") ? "0" : "1"
+    }
+  }
+
+  visibilityValue() {
+    if (this.hasVisibilityRadioTarget) {
+      const checked = this.visibilityRadioTargets.find(r => r.checked)
+      return checked ? checked.value : "open"
+    }
+    return "open"
   }
 }

@@ -7,10 +7,13 @@ class Countdown < ApplicationRecord
 
   validates :title, :token, :target_date, presence: true
   validates :token, uniqueness: true
-  validates :password, presence: true, if: -> { !is_public? && password_digest.blank? }
-  validates :password_confirmation, presence: true, if: -> { !is_public? && password.present? }
+  validates :password_confirmation, presence: true, if: -> { password.present? }
 
   before_validation :generate_token, on: :create
+
+  def protected?
+    is_public? && password_digest.present?
+  end
 
   def favorited_by?(user)
     user.present? && countdown_favorites.exists?(user_id: user.id)
