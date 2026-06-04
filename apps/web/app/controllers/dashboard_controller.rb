@@ -16,6 +16,7 @@ class DashboardController < ApplicationController
              .order("countdown_favorites.created_at desc"),
       limit: 20
     )
+    @calculations = Current.user.business_days_calculations.order(created_at: :desc).limit(50)
   end
 
   private

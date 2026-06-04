@@ -1,0 +1,259 @@
+<%= render "shared/structured_data", schema: @schema %>
+
+<div class="max-w-6xl mx-auto" data-controller="countdown-widget">
+
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-slate-900">Countdown Widget Builder</h1>
+    <p class="text-slate-500 mt-1">Create a free countdown widget for your website in minutes</p>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-6">
+
+    <%# ── Left: Configuration form ──────────────────────────────────────── %>
+    <div class="lg:w-[480px] shrink-0 space-y-5">
+
+      <%# How it works notice %>
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800">
+        <strong>How it works:</strong> Customize your widget using the form below.
+        Changes appear instantly in the preview. Copy the embed code when ready!
+      </div>
+
+      <%# ── Countdown Details ── %>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wide">Countdown Details</h2>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Event Title <span class="text-slate-400 font-normal">(optional)</span></label>
+          <input type="text" placeholder="🕐 My Countdown" value="My Countdown"
+                 class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 data-countdown-widget-target="title"
+                 data-action="input->countdown-widget#update" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Target Date <span class="text-red-500">*</span></label>
+            <input type="date"
+                   class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   data-countdown-widget-target="date"
+                   data-action="change->countdown-widget#update" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Time <span class="text-slate-400 font-normal">(optional)</span></label>
+            <input type="time" value="00:00"
+                   class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   data-countdown-widget-target="time"
+                   data-action="change->countdown-widget#update" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Timezone</label>
+          <select class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  data-countdown-widget-target="timezone"
+                  data-action="change->countdown-widget#update">
+            <% @timezones.each do |label, iana| %>
+              <option value="<%= iana %>"><%= label %></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+
+      <%# ── Appearance ── %>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wide">Appearance</h2>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Layout Style</label>
+            <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    data-countdown-widget-target="layout"
+                    data-action="change->countdown-widget#update">
+              <option value="horizontal">Horizontal (default)</option>
+              <option value="vertical">Vertical</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Font Family</label>
+            <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    data-countdown-widget-target="font"
+                    data-action="change->countdown-widget#update">
+              <% @fonts.each do |label, val| %>
+                <option value="<%= val %>" <%= "selected" if val == "Space Grotesk" %>><%= label %></option>
+              <% end %>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Font Scale</label>
+            <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    data-countdown-widget-target="fontScale"
+                    data-action="change->countdown-widget#update">
+              <option value="75">75%</option>
+              <option value="100" selected>100% (Default)</option>
+              <option value="125">125%</option>
+              <option value="150">150%</option>
+            </select>
+          </div>
+        </div>
+
+        <%# Color pickers %>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-2">Colors</label>
+          <div class="grid grid-cols-4 gap-3">
+            <% [
+              ["Background",  "bgColor",    "bgColorHex",    "#213B7A", "syncBgPicker",    "syncBgHex"],
+              ["Title",       "titleColor", "titleColorHex", "#ffffff", "syncTitlePicker", "syncTitleHex"],
+              ["Numbers",     "numColor",   "numColorHex",   "#ffffff", "syncNumPicker",   "syncNumHex"],
+              ["Labels",      "labelColor", "labelColorHex", "#cccccc", "syncLabelPicker", "syncLabelHex"],
+            ].each do |label, picker_target, hex_target, default_val, picker_action, hex_action| %>
+              <div>
+                <div class="text-xs text-slate-500 mb-1 text-center"><%= label %></div>
+                <div class="flex flex-col items-center gap-1">
+                  <input type="color" value="<%= default_val %>"
+                         class="w-full h-9 rounded-lg border border-slate-300 cursor-pointer p-0.5"
+                         style="appearance: none;"
+                         data-countdown-widget-target="<%= picker_target %>"
+                         data-action="input->countdown-widget#<%= picker_action %>" />
+                  <input type="text" value="<%= default_val %>"
+                         class="w-full border border-slate-200 rounded-md px-2 py-1 text-xs text-slate-700 text-center font-mono focus:outline-none focus:ring-1 focus:ring-blue-400"
+                         maxlength="7"
+                         data-countdown-widget-target="<%= hex_target %>"
+                         data-action="input->countdown-widget#<%= hex_action %>" />
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# Border radius %>
+        <div>
+          <div class="flex justify-between mb-1">
+            <label class="text-xs font-medium text-slate-600">Border Radius</label>
+            <span class="text-xs text-slate-500" data-countdown-widget-target="radiusLabel">20px</span>
+          </div>
+          <input type="range" min="0" max="40" value="20"
+                 class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                 data-countdown-widget-target="radius"
+                 data-action="input->countdown-widget#update" />
+        </div>
+
+        <%# Shadow %>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Shadow</label>
+          <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  data-countdown-widget-target="shadow"
+                  data-action="change->countdown-widget#update">
+            <option value="none">None</option>
+            <option value="soft">Soft</option>
+            <option value="medium">Medium</option>
+            <option value="strong" selected>Strong</option>
+          </select>
+        </div>
+      </div>
+
+      <%# ── Display Options ── %>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-wide">Display Options</h2>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Show Target Date?</label>
+            <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    data-countdown-widget-target="showDate"
+                    data-action="change->countdown-widget#update">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Date Format</label>
+            <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    data-countdown-widget-target="dateFormat"
+                    data-action="change->countdown-widget#update">
+              <option value="long">January 1, 2027</option>
+              <option value="short">1/1/2027</option>
+              <option value="numeric">2027-01-01</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-2">Units to Display</label>
+          <div class="flex gap-4">
+            <% %w[Days Hours Minutes Seconds].each do |unit| %>
+              <label class="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer">
+                <input type="checkbox" value="<%= unit.downcase %>" checked
+                       class="h-4 w-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500"
+                       data-countdown-widget-target="unit"
+                       data-action="change->countdown-widget#update" />
+                <%= unit %>
+              </label>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%# Attribution notice %>
+      <p class="text-xs text-slate-400 px-1">
+        By using this widget, you agree to include the attribution link to TimeAgoCalculator.com.
+      </p>
+
+    </div><%# end left panel %>
+
+    <%# ── Right: Preview + Embed tabs ────────────────────────────────────── %>
+    <div class="flex-1 min-w-0">
+
+      <%# Tab bar %>
+      <div class="flex items-center gap-0 border-b border-slate-200 mb-0">
+        <button type="button"
+                class="px-4 py-3 text-sm font-medium border-b-2 border-blue-600 text-blue-600 -mb-px"
+                data-countdown-widget-target="previewTab"
+                data-action="click->countdown-widget#showPreview">
+          Live Preview
+        </button>
+        <button type="button"
+                class="px-4 py-3 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 -mb-px"
+                data-countdown-widget-target="embedTab"
+                data-action="click->countdown-widget#showEmbed">
+          Embed Code
+        </button>
+        <span class="ml-auto mr-1 px-2.5 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">Auto-updating</span>
+      </div>
+
+      <%# Preview pane %>
+      <div data-countdown-widget-target="previewPane"
+           class="bg-white rounded-b-2xl rounded-tr-2xl border border-t-0 border-slate-200 shadow-sm p-6 min-h-[320px]">
+        <p class="text-xs text-slate-400 mb-4">This is how your widget will appear on your website:</p>
+        <div data-countdown-widget-target="preview" class="max-w-lg mx-auto">
+          <%# Stimulus renders widget HTML here %>
+        </div>
+      </div>
+
+      <%# Embed code pane %>
+      <div data-countdown-widget-target="embedPane"
+           class="hidden bg-white rounded-b-2xl rounded-tr-2xl border border-t-0 border-slate-200 shadow-sm p-6 min-h-[320px]">
+        <p class="text-sm text-slate-600 mb-3">Copy and paste this code into your website's HTML:</p>
+        <div class="relative">
+          <textarea readonly rows="8"
+                    class="w-full font-mono text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    data-countdown-widget-target="embedCode"></textarea>
+          <button type="button"
+                  class="absolute top-3 right-3 text-xs bg-slate-900 hover:bg-slate-700 text-white font-medium px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                  onclick="const ta = this.previousElementSibling; ta.select(); navigator.clipboard.writeText(ta.value).then(() => { this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy', 2000) })">
+            Copy
+          </button>
+        </div>
+
+        <div class="mt-5 bg-slate-50 rounded-xl p-4 text-sm text-slate-600 space-y-1.5">
+          <p class="font-semibold text-slate-700 text-xs uppercase tracking-wide mb-2">Quick Tips</p>
+          <p>• The widget updates in real-time on your website</p>
+          <p>• The attribution link is included inside the widget</p>
+          <p>• Works on any website, CMS, or blog platform</p>
+          <p>• Adjust <code class="text-xs bg-slate-200 px-1 rounded">height</code> in the iframe to fit your layout</p>
+        </div>
+      </div>
+
+    </div><%# end right panel %>
+
+  </div><%# end flex row %>
+</div>

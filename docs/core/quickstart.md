@@ -50,6 +50,7 @@ Procfile is at `apps/web/Procfile.dev`.
 | `/time-until-calculator?date=2027-12-25` | Countdown |
 | `/date-difference-calculator?from=2020-01-01&to=2025-01-01` | Date diff |
 | `/age-calculator?birthdate=1990-01-01` | Age |
+| `/business-days-calculator` | Business days (weekends + holiday-aware) |
 | `/how-long-ago/moon-landing` | Historical event page |
 | `/countdown/christmas` | Holiday countdown |
 | `/age/taylor-swift` | Celebrity age |
@@ -81,6 +82,7 @@ timeagocalculator.com/
 │   │   │   └── holiday.rb
 │   │   ├── services/
 │   │   │   ├── date_calculations/   # Pure Ruby calculators
+│   │   │   ├── nager_date_client.rb # Nager.Date API wrapper (holiday data)
 │   │   │   └── seo/
 │   │   │       └── structured_data_builder.rb
 │   │   ├── views/

@@ -30,6 +30,12 @@
          data-tab="favorites">
         Favorites (<%= @favorited.size %>)
       </a>
+      <a href="#calculations"
+         class="border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-3 px-1"
+         data-dashboard-tab-target="tab"
+         data-tab="calculations">
+        Calculations (<%= @calculations.size %>)
+      </a>
     </nav>
   </div>
 
@@ -140,6 +146,57 @@
           <%== @pagy_fav.series_nav %>
         </div>
       <% end %>
+    <% end %>
+  </div>
+
+  <%# Calculations panel %>
+  <div id="calculations" data-dashboard-tab-target="panel" class="hidden">
+    <% if @calculations.empty? %>
+      <div class="text-center py-16 text-slate-400">
+        <p class="text-lg mb-2">No calculations yet.</p>
+        <p class="text-sm">
+          <%= link_to "Business Days Calculator →", business_days_calculator_path, class: "text-blue-600 hover:underline" %>
+        </p>
+      </div>
+    <% else %>
+      <div class="space-y-3">
+        <% @calculations.each do |calc| %>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-4">
+            <div class="flex-1 min-w-0">
+              <% if calc.mode == "between" %>
+                <p class="font-semibold text-slate-900">
+                  <%= link_to business_days_calculation_path(calc.token), class: "hover:text-blue-600" do %>
+                    <%= calc.result_days %> business days
+                    <span class="font-normal text-slate-500">between <%= calc.from_date.strftime("%b %-d, %Y") %> – <%= calc.to_date.strftime("%b %-d, %Y") %></span>
+                  <% end %>
+                </p>
+              <% else %>
+                <p class="font-semibold text-slate-900">
+                  <%= link_to business_days_calculation_path(calc.token), class: "hover:text-blue-600" do %>
+                    <%= calc.input_days %> business days <%= calc.direction == "forward" ? "after" : "before" %>
+                    <span class="font-normal text-slate-500"><%= calc.from_date.strftime("%b %-d, %Y") %></span>
+                    → <span class="text-blue-600"><%= calc.result_date.strftime("%b %-d, %Y") %></span>
+                  <% end %>
+                </p>
+              <% end %>
+              <p class="text-xs text-slate-400 mt-0.5">
+                <%= calc.created_at.strftime("%B %-d, %Y") %>
+                <% if calc.country_code.present? %>
+                  · <%= calc.country_code %>
+                <% end %>
+              </p>
+            </div>
+            <div class="shrink-0 flex gap-2">
+              <%= link_to "View", business_days_calculation_path(calc.token),
+                    class: "text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-lg transition-colors" %>
+              <%= button_to "Delete", destroy_business_days_calculation_path(calc.token),
+                    method: :delete,
+                    form: { data: { turbo_confirm: "Delete this calculation?" } },
+                    class: "text-xs bg-red-100 hover:bg-red-200 text-red-700 font-medium px-3 py-1.5 rounded-lg transition-colors cursor-pointer" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
     <% end %>
   </div>
 

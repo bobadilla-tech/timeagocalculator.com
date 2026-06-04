@@ -5,6 +5,7 @@ class User < ApplicationRecord
   has_many :countdowns, dependent: :nullify
   has_many :countdown_favorites, dependent: :destroy
   has_many :favorited_countdowns, through: :countdown_favorites, source: :countdown
+  has_many :business_days_calculations, dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
   normalizes :username, with: ->(u) { u.strip.downcase }

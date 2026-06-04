@@ -10,9 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_04_013547) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_04_134242) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "business_days_calculations", force: :cascade do |t|
+    t.string "country_code"
+    t.datetime "created_at", null: false
+    t.string "direction"
+    t.date "from_date", null: false
+    t.integer "input_days"
+    t.string "mode", null: false
+    t.date "result_date"
+    t.integer "result_days", null: false
+    t.date "to_date"
+    t.string "token", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["token"], name: "index_business_days_calculations_on_token", unique: true
+    t.index ["user_id"], name: "index_business_days_calculations_on_user_id"
+  end
 
   create_table "countdown_favorites", force: :cascade do |t|
     t.bigint "countdown_id", null: false
@@ -95,6 +112,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_04_013547) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "business_days_calculations", "users"
   add_foreign_key "countdown_favorites", "countdowns"
   add_foreign_key "countdown_favorites", "users"
   add_foreign_key "countdowns", "users"

@@ -1,0 +1,109 @@
+<%= render "shared/structured_data", schema: @schema %>
+
+<div class="max-w-2xl mx-auto">
+  <nav class="text-sm text-slate-400 mb-6">
+    <%= link_to "Home", root_path, class: "hover:text-blue-600" %> /
+    <%= link_to "Business Days Calculator", business_days_calculator_path, class: "hover:text-blue-600" %> /
+    <% if @country_name %>
+      <%= link_to @country_name, business_days_month_country_path(params[:country], @year, params[:month]), class: "hover:text-blue-600" %> /
+    <% end %>
+    <span class="text-slate-600"><%= @month_name %> <%= @year %></span>
+  </nav>
+
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">
+    Business Days in <%= @month_name %> <%= @year %><% if @country_name %> in <%= @country_name %><% end %>
+  </h1>
+  <p class="text-slate-500 mb-8">
+    Working days for <%= @month_name %> <%= @year %><%= @country_name ? ", excluding #{@country_name} public holidays" : "" %>.
+  </p>
+
+  <%# Main result %>
+  <%= render "shared/result_card" do %>
+    <p class="text-lg font-semibold text-slate-700 mb-6">
+      <%= @month_name %> <%= @year %> has
+      <span class="text-blue-600"><%= @result.business_days %> business <%= "day".pluralize(@result.business_days) %></span>.
+    </p>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <% [
+        [@result.total_days,                              "Calendar Days"],
+        [@result.total_days - (@result.total_days % 7) / 7 * 2, nil],
+        [@result.total_days - @result.business_days - @holidays.size, nil],
+        [@result.business_days,                           "Business Days"]
+      ] %>
+      <%
+        total     = @result.total_days
+        weekends  = ((@from..@to).count { |d| d.saturday? || d.sunday? })
+        hol_count = @holidays.size
+      %>
+      <% [
+        [total,                   "Calendar Days"],
+        [weekends,                "Weekend Days"],
+        [hol_count,               "Public Holidays"],
+        [@result.business_days,   "Business Days"]
+      ].each do |value, label| %>
+        <div class="text-center bg-slate-50 rounded-xl p-4">
+          <div class="text-2xl font-bold <%= label == "Business Days" ? "text-blue-700" : "text-slate-700" %>">
+            <%= value %>
+          </div>
+          <div class="text-xs text-slate-500 mt-1"><%= label %></div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# Public holidays table %>
+  <% if @country_name %>
+    <div class="mt-6 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-slate-800 mb-4">
+        Public Holidays in <%= @country_name %> — <%= @month_name %> <%= @year %>
+      </h2>
+      <% if @holidays.empty? %>
+        <p class="text-sm text-slate-500">No public holidays in <%= @month_name %> <%= @year %> for <%= @country_name %>.</p>
+      <% else %>
+        <div class="divide-y divide-slate-100">
+          <% @holidays.each do |h| %>
+            <div class="flex items-center gap-4 py-3">
+              <div class="w-24 text-sm font-medium text-slate-700"><%= h[:date].strftime("%b %-d") %></div>
+              <div class="text-sm text-slate-500"><%= h[:date].strftime("%A") %></div>
+              <div class="flex-1 text-sm text-slate-900 font-medium"><%= h[:name] %></div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <%# No country selected — prompt to pick one %>
+    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-2xl p-5">
+      <p class="text-sm font-medium text-blue-800 mb-3">
+        Want to exclude public holidays for your country?
+      </p>
+      <div class="flex flex-wrap gap-2">
+        <% NagerDateClient::FALLBACK_COUNTRIES.first(8).each do |c| %>
+          <%= link_to c["name"],
+                business_days_month_country_path(c["name"].parameterize, @year, params[:month]),
+                class: "text-xs bg-white hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-full transition-colors" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Month navigation %>
+  <div class="mt-8 flex items-center justify-between">
+    <% prev_path = @country_code \
+          ? business_days_month_country_path(params[:country], @prev_month.year, Date::MONTHNAMES[@prev_month.month].downcase) \
+          : business_days_month_path(@prev_month.year, Date::MONTHNAMES[@prev_month.month].downcase) %>
+    <% next_path = @country_code \
+          ? business_days_month_country_path(params[:country], @next_month.year, Date::MONTHNAMES[@next_month.month].downcase) \
+          : business_days_month_path(@next_month.year, Date::MONTHNAMES[@next_month.month].downcase) %>
+    <%= link_to "← #{Date::MONTHNAMES[@prev_month.month]} #{@prev_month.year}", prev_path,
+          class: "text-sm text-blue-600 hover:underline font-medium" %>
+    <%= link_to "#{Date::MONTHNAMES[@next_month.month]} #{@next_month.year} →", next_path,
+          class: "text-sm text-blue-600 hover:underline font-medium" %>
+  </div>
+
+  <%# CTA to calculator %>
+  <div class="mt-10 border-t border-slate-200 pt-6">
+    <%= link_to "Calculate business days for a custom date range →", business_days_calculator_path,
+          class: "text-blue-600 hover:underline font-medium text-sm" %>
+  </div>
+</div>

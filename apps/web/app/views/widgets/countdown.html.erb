@@ -1,0 +1,138 @@
+<%
+  # Allowed values whitelist helpers
+  hex_ok    = ->(v, d) { v.to_s.match?(/\A#[0-9a-fA-F]{3,6}\z/) ? v : d }
+  int_clamp = ->(v, lo, hi, d) { n = v.to_i; n.between?(lo, hi) ? n : d }
+  allow     = ->(v, list, d) { list.include?(v.to_s) ? v.to_s : d }
+
+  valid_fonts = ["system", "Space Grotesk", "Inter", "Roboto", "Georgia"]
+  valid_units = %w[days hours minutes seconds]
+
+  title       = h(params[:title].presence || "My Countdown")
+  date_str    = params[:date].presence  || Date.tomorrow.iso8601
+  time_str    = params[:time].presence  || "00:00"
+  tz_param    = params[:tz].presence    || "UTC"
+  bg          = hex_ok.(params[:bg],           "#213B7A")
+  title_color = hex_ok.(params[:title_color],  "#ffffff")
+  num_color   = hex_ok.(params[:num_color],    "#ffffff")
+  lbl_color   = hex_ok.(params[:label_color],  "#cccccc")
+  radius      = int_clamp.(params[:radius],    0, 40, 20)
+  shadow_key  = allow.(params[:shadow],        WidgetsController::SHADOW_MAP.keys, "none")
+  shadow_css  = WidgetsController::SHADOW_MAP[shadow_key]
+  font        = allow.(params[:font],          valid_fonts, "system")
+  font_family = font == "system" ? "system-ui, -apple-system, sans-serif" : "'#{font}', sans-serif"
+  scale       = int_clamp.(params[:scale],     50, 200, 100)
+  layout      = allow.(params[:layout],        %w[horizontal vertical], "horizontal")
+  show_date   = params[:show_date] != "false"
+  date_fmt    = allow.(params[:date_format],   %w[long short numeric], "long")
+  units       = begin
+    raw = params[:units]&.split(",")&.intersection(valid_units)
+    (raw.present? ? raw : valid_units)
+  end
+
+  # Parse target datetime with timezone
+  tz_zone = begin
+    ActiveSupport::TimeZone.all.find { |z| z.tzinfo.identifier == tz_param } ||
+      ActiveSupport::TimeZone["UTC"]
+  end
+  target_time = begin
+    tz_zone.parse("#{date_str} #{time_str}")
+  rescue
+    begin; tz_zone.parse(date_str); rescue; Time.current.utc + 1.day; end
+  end
+  target_iso = target_time.utc.iso8601
+
+  # Display date label
+  display_date = case date_fmt
+  when "short"   then target_time.strftime("%-m/%-d/%Y")
+  when "numeric" then target_time.strftime("%Y-%m-%d")
+  else target_time.strftime("%B %-d, %Y")
+  end
+
+  # Scale-dependent sizes
+  num_size   = (scale * 0.52).round
+  title_size = (scale * 0.22).round
+  date_size  = (scale * 0.12).round
+  label_size = [10, (scale * 0.1).round].max
+  unit_width = (scale * 0.6).round
+  gap        = (scale * 0.24).round
+  pad_v      = (scale * 0.24).round
+  pad_h      = (scale * 0.4).round
+%>
+<% if font != "system" %>
+  <% content_for :font_url do %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=<%= font.gsub(" ", "+") %>:wght@400;700&display=swap" rel="stylesheet">
+  <% end %>
+<% end %>
+
+<div style="
+  background: <%= bg %>;
+  border-radius: <%= radius %>px;
+  box-shadow: <%= shadow_css %>;
+  padding: <%= pad_v %>px <%= pad_h %>px;
+  font-family: <%= font_family %>;
+  width: 100%;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+">
+  <% if title.present? %>
+    <h2 style="color: <%= title_color %>; font-size: <%= title_size %>px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.01em;">
+      🕐 <%= title %>
+    </h2>
+  <% end %>
+
+  <% if show_date %>
+    <p style="color: <%= lbl_color %>; font-size: <%= date_size %>px; margin-bottom: 14px; opacity: 0.85;">
+      <%= display_date %>
+    </p>
+  <% end %>
+
+  <div style="display: flex; gap: <%= gap %>px; align-items: flex-start; margin-bottom: 14px;">
+    <% units.each do |unit| %>
+      <div style="min-width: <%= unit_width %>px; text-align: center;">
+        <div id="w-<%= unit %>"
+             style="color: <%= num_color %>; font-size: <%= num_size %>px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums;">
+          0
+        </div>
+        <div style="color: <%= lbl_color %>; font-size: <%= label_size %>px; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 5px; font-weight: 500;">
+          <%= unit %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <p style="color: rgba(255,255,255,0.35); font-size: 10px; margin-top: 4px; font-family: system-ui, sans-serif;">
+    Countdown widget powered by
+    <a href="https://timeagocalculator.com" target="_blank" rel="noopener"
+       style="color: rgba(255,255,255,0.45); text-decoration: underline;">
+      TimeAgoCalculator.com
+    </a>
+  </p>
+</div>
+
+<script>
+(function() {
+  var target = new Date("<%= target_iso %>").getTime();
+  var units  = <%= raw units.to_json %>;
+  function tick() {
+    var diff = Math.max(0, target - Date.now());
+    var s    = Math.floor(diff / 1000);
+    var d    = Math.floor(s / 86400);
+    var h    = Math.floor((s % 86400) / 3600);
+    var m    = Math.floor((s % 3600) / 60);
+    var sec  = s % 60;
+    function set(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+    function pad(n) { return String(n).padStart(2, "0"); }
+    if (units.indexOf("days")    >= 0) set("w-days",    d);
+    if (units.indexOf("hours")   >= 0) set("w-hours",   pad(h));
+    if (units.indexOf("minutes") >= 0) set("w-minutes", pad(m));
+    if (units.indexOf("seconds") >= 0) set("w-seconds", pad(sec));
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>

@@ -1,0 +1,133 @@
+<%= render "shared/structured_data", schema: @schema %>
+
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">Business Days Calculator</h1>
+  <p class="text-slate-500 mb-8">Calculate working days between dates, excluding weekends and public holidays.</p>
+
+  <%= form_with url: business_days_calculations_path,
+        data: { controller: "business-days" } do |f| %>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+
+      <%# Mode selector — name="mode" submitted directly %>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-2">Calculation Mode</label>
+        <div class="flex gap-3">
+          <% [
+            ["between", "Between Two Dates"],
+            ["add",     "Add / Subtract Days"]
+          ].each do |value, label| %>
+            <label class="flex-1 flex items-center gap-2 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 has-checked:border-blue-500 has-checked:bg-blue-50">
+              <input type="radio" name="mode" value="<%= value %>"
+                     <%= "checked" if (@mode || "between") == value %>
+                     class="h-4 w-4 text-blue-600 border-slate-300 focus:ring-blue-500"
+                     data-business-days-target="modeRadio"
+                     data-action="change->business-days#switchMode" />
+              <span class="text-sm font-medium text-slate-800"><%= label %></span>
+            </label>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Between-dates fields — inputs disabled when not active so they don't submit %>
+      <div data-business-days-target="betweenFields"
+           class="<%= (@mode || "between") == "between" ? "" : "hidden" %> space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Start Date</label>
+            <input type="date" name="from" value="<%= params[:from] %>"
+                   <%= "disabled" if (@mode || "between") != "between" %>
+                   class="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">End Date</label>
+            <input type="date" name="to" value="<%= params[:to] || Date.today %>"
+                   <%= "disabled" if (@mode || "between") != "between" %>
+                   class="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
+      </div>
+
+      <%# Add/subtract fields — inputs disabled when not active so they don't submit %>
+      <div data-business-days-target="addFields"
+           class="<%= @mode == "add" ? "" : "hidden" %> space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Start Date</label>
+            <input type="date" name="from" value="<%= params[:from] %>"
+                   <%= "disabled" if @mode != "add" %>
+                   class="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Business Days</label>
+            <input type="number" name="days" value="<%= params[:days] %>" min="1"
+                   placeholder="e.g. 10"
+                   <%= "disabled" if @mode != "add" %>
+                   class="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Direction</label>
+          <div class="flex gap-3">
+            <% [["add", "Add (forward)"], ["subtract", "Subtract (backward)"]].each do |value, label| %>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="direction" value="<%= value %>"
+                       <%= "checked" if (params[:direction] || "add") == value %>
+                       <%= "disabled" if @mode != "add" %>
+                       class="h-4 w-4 text-blue-600 border-slate-300 focus:ring-blue-500" />
+                <span class="text-sm text-slate-700"><%= label %></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%# Country selector %>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">
+          Country / Region
+          <span class="text-slate-400 font-normal">(optional — for public holiday exclusions)</span>
+        </label>
+        <select name="country_code"
+                class="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+          <option value="">Weekends only (no holidays)</option>
+          <% @countries.each do |c| %>
+            <option value="<%= c["countryCode"] %>"
+                    <%= "selected" if params[:country_code] == c["countryCode"] %>>
+              <%= c["name"] %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+
+      <%= f.submit "Calculate →", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg cursor-pointer transition-colors" %>
+    </div>
+  <% end %>
+
+  <div class="mt-10 prose prose-slate max-w-none">
+    <h2 class="text-xl font-semibold text-slate-800">How it works</h2>
+    <p class="text-slate-600 mt-2">
+      Business days are weekdays (Monday–Friday) that are not public holidays.
+      Select a country to exclude that country's national holidays from the count.
+      Holiday data is provided by <a href="https://date.nager.at" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Nager.Date</a>,
+      covering 90+ countries.
+    </p>
+
+    <h2 class="text-xl font-semibold text-slate-800 mt-6">Quick calculations</h2>
+    <div class="flex flex-wrap gap-3 mt-3">
+      <%
+        this_month_name = Date::MONTHNAMES[Date.today.month].downcase
+        this_year       = Date.today.year
+      %>
+      <%= link_to "Business days this month",
+            business_days_this_month_path,
+            class: "text-sm bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 px-3 py-1.5 rounded-full transition-colors" %>
+      <%= link_to "Business days this month (US)",
+            business_days_month_country_path("united-states", this_year, this_month_name),
+            class: "text-sm bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 px-3 py-1.5 rounded-full transition-colors" %>
+      <%= link_to "Business days in #{Date::MONTHNAMES[Date.today.next_month.month]} #{Date.today.next_month.year}",
+            business_days_month_path(Date.today.next_month.year, Date::MONTHNAMES[Date.today.next_month.month].downcase),
+            class: "text-sm bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 px-3 py-1.5 rounded-full transition-colors" %>
+    </div>
+  </div>
+</div>

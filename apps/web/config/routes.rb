@@ -6,10 +6,21 @@ Rails.application.routes.draw do
 
   get "up" => "rails/health#show", as: :rails_health_check
 
-  get "/time-ago-calculator",        to: "calculators/time_ago#show",        as: :time_ago_calculator
-  get "/time-until-calculator",      to: "calculators/time_until#show",      as: :time_until_calculator
-  get "/date-difference-calculator", to: "calculators/date_difference#show", as: :date_difference_calculator
-  get "/age-calculator",             to: "calculators/age#show",             as: :age_calculator
+  get "/time-ago-calculator",        to: "calculators/time_ago#show",         as: :time_ago_calculator
+  get "/time-until-calculator",      to: "calculators/time_until#show",       as: :time_until_calculator
+  get "/date-difference-calculator", to: "calculators/date_difference#show",  as: :date_difference_calculator
+  get "/age-calculator",             to: "calculators/age#show",              as: :age_calculator
+  get  "/business-days-calculator",      to: "calculators/business_days#show",  as: :business_days_calculator
+  get  "/countdown-widget-builder",    to: "widgets#builder",                 as: :countdown_widget_builder
+  get  "/widget/countdown",            to: "widgets#countdown",               as: :countdown_widget
+  post "/business-days-calculations", to: "business_days_calculations#create",  as: :business_days_calculations
+  get  "/bd/:token",                  to: "business_days_calculations#show",    as: :business_days_calculation
+  delete "/bd/:token",                to: "business_days_calculations#destroy", as: :destroy_business_days_calculation
+
+  get "/business-days/this-month",              to: "business_days_month#this_month",         as: :business_days_this_month
+  get "/business-days/:country/this-month",     to: "business_days_month#this_month_country", as: :business_days_this_month_country, constraints: { country: /[a-z\-]+/ }
+  get "/business-days/:year/:month",            to: "business_days_month#show",               as: :business_days_month,         constraints: { year: /\d{4}/, month: /[a-z]+/ }
+  get "/business-days/:country/:year/:month",   to: "business_days_month#show",               as: :business_days_month_country, constraints: { country: /[a-z\-]+/, year: /\d{4}/, month: /[a-z]+/ }
 
   get  "/countdowns/new",   to: "countdowns#new",          as: :new_countdown
   post "/countdowns",       to: "countdowns#create",        as: :countdowns
