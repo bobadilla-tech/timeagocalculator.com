@@ -3,6 +3,9 @@
     <% unless @countdown.is_public? %>
       <span class="text-xs font-medium bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Private</span>
     <% end %>
+    <% if @countdown.locked? %>
+      <span class="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">Locked</span>
+    <% end %>
   </div>
 
   <h1 class="text-3xl font-bold text-slate-900 mb-1"><%= @countdown.title %></h1>
@@ -46,6 +49,46 @@
       </button>
     </div>
   </div>
+
+  <%# Favorite button — visible to logged-in users on public countdowns %>
+  <% if Current.user && @countdown.is_public? %>
+    <div class="mt-6 flex items-center gap-3">
+      <% if @countdown.favorited_by?(Current.user) %>
+        <%= button_to "♥ Unfavorite", unfavorite_countdown_path(@countdown.token),
+              method: :delete,
+              class: "text-sm bg-red-100 hover:bg-red-200 text-red-700 font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer" %>
+      <% else %>
+        <%= button_to "♡ Favorite", favorite_countdown_path(@countdown.token),
+              class: "text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer" %>
+      <% end %>
+      <% count = @countdown.favorites_count %>
+      <% if count > 0 %>
+        <span class="text-sm text-slate-400">♥ <%= count %> <%= count == 1 ? "person" : "people" %> favorited this</span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @countdown.owned_by?(Current.user) %>
+    <div class="mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <p class="text-sm font-semibold text-slate-700 mb-3">Manage this countdown</p>
+      <div class="flex flex-wrap gap-3">
+        <% unless @countdown.locked? %>
+          <%= link_to "Edit", edit_countdown_path(@countdown.token),
+                class: "text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2 rounded-lg transition-colors" %>
+        <% end %>
+
+        <%= button_to @countdown.locked? ? "Unlock" : "Lock",
+              toggle_lock_countdown_path(@countdown.token),
+              method: :patch,
+              class: "text-sm #{@countdown.locked? ? "bg-green-100 hover:bg-green-200 text-green-700" : "bg-amber-100 hover:bg-amber-200 text-amber-700"} font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer" %>
+
+        <%= button_to "Delete", shared_countdown_path(@countdown.token),
+              method: :delete,
+              form: { data: { turbo_confirm: "Delete \"#{@countdown.title}\"? This cannot be undone." } },
+              class: "text-sm bg-red-100 hover:bg-red-200 text-red-700 font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer" %>
+      </div>
+    </div>
+  <% end %>
 
   <div class="mt-8">
     <%= link_to "Create your own countdown →", new_countdown_path,

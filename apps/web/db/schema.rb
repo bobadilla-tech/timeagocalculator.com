@@ -10,14 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_03_235234) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_04_002813) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "countdown_favorites", force: :cascade do |t|
+    t.bigint "countdown_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["countdown_id"], name: "index_countdown_favorites_on_countdown_id"
+    t.index ["user_id", "countdown_id"], name: "index_countdown_favorites_on_user_id_and_countdown_id", unique: true
+    t.index ["user_id"], name: "index_countdown_favorites_on_user_id"
+  end
 
   create_table "countdowns", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
     t.boolean "is_public", default: true, null: false
+    t.boolean "locked", default: false, null: false
     t.string "password_digest"
     t.datetime "target_date", null: false
     t.string "title", null: false
@@ -52,4 +63,37 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_235234) do
     t.datetime "updated_at", null: false
     t.index ["slug"], name: "index_holidays_on_slug", unique: true
   end
+
+  create_table "identities", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "provider", null: false
+    t.string "uid", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["provider", "uid"], name: "index_identities_on_provider_and_uid", unique: true
+    t.index ["user_id"], name: "index_identities_on_user_id"
+  end
+
+  create_table "sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email_address", null: false
+    t.string "password_digest", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true
+  end
+
+  add_foreign_key "countdown_favorites", "countdowns"
+  add_foreign_key "countdown_favorites", "users"
+  add_foreign_key "countdowns", "users"
+  add_foreign_key "identities", "users"
+  add_foreign_key "sessions", "users"
 end

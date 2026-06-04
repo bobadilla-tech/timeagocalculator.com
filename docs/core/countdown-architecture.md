@@ -13,8 +13,14 @@ Custom countdowns are user-created, shareable countdown timers. No login require
 | `GET /countdowns/new` | `countdowns#new` | Creation form |
 | `POST /countdowns` | `countdowns#create` | Persist + redirect |
 | `GET /c/:token` | `countdowns#show` | Shareable live countdown |
+| `GET /c/:token/edit` | `countdowns#edit` | Edit form (owner only) |
+| `PATCH /c/:token` | `countdowns#update` | Save edits (owner only) |
+| `DELETE /c/:token` | `countdowns#destroy` | Delete (owner only) |
 | `GET /c/:token/unlock` | `countdowns#unlock` | Password gate (private only) |
 | `POST /c/:token/unlock` | `countdowns#authenticate` | Verify password + set session |
+| `PATCH /c/:token/lock` | `countdowns#toggle_lock` | Toggle locked state (owner only) |
+| `POST /c/:token/favorite` | `countdown_favorites#create` | Favorite (logged-in, public only) |
+| `DELETE /c/:token/favorite` | `countdown_favorites#destroy` | Unfavorite |
 
 `/c/:token` is intentionally short and distinct from `/countdown/:slug` (which routes to `holidays#show`).
 
@@ -40,16 +46,19 @@ Two modes:
 
 ### Password Protected
 - `is_public = false`, `password_digest` stores bcrypt hash
-- `show` action checks `session["countdown_auth_#{token}"]`
-- If session key absent → redirect to `/c/:token/unlock`
-- `/c/:token/unlock` renders a password form
-- `authenticate` POST calls `countdown.authenticate(password)` (from `has_secure_password`)
+- `show` gate: `is_public? || password_authenticated? || owned_by?(Current.user)`
+  - Owners always see their own private countdown — no password prompt
+  - Non-owner visitors hit the unlock flow
+- `unlock GET` renders a password form
+- `authenticate POST` calls `countdown.authenticate(password)` (from `has_secure_password`)
 - On success: sets `session["countdown_auth_#{token}"] = true`, redirects to `show`
 - Session is cookie-based (Rails default) — survives browser tab close
 
+**Password validation rule:** `validates :password, presence: true, if: -> { !is_public? && password_digest.blank? }` — password is only required the first time a private countdown is saved (no existing digest). Subsequent edits that don't touch the password field leave `password_digest` unchanged.
+
 ### Why session-based, not JWT or signed URL?
 
-Simple. No external deps. Acceptable for anonymous (no-account) access control at MVP scale. Phase 2 (user accounts) will replace this with proper authorization.
+Simple. No external deps. Acceptable for anonymous (no-account) access control. Phase 3 (full auth) can tighten this if needed.
 
 ### CSRF
 
@@ -67,13 +76,26 @@ countdowns
   target_date     :datetime, null: false
   description     :text
   is_public       :boolean,  null: false, default: true
+  locked          :boolean,  null: false, default: false
   password_digest :string    # null when public
-  user_id         :integer   # null in Phase 1; FK to users in Phase 2
+  user_id         :integer   # FK → users (nullable; anonymous creation allowed)
   created_at
   updated_at
+
+countdown_favorites
+  id              :bigint
+  user_id         :bigint,   null: false, FK → users
+  countdown_id    :bigint,   null: false, FK → countdowns
+  created_at
+  updated_at
+  # unique index on [user_id, countdown_id]
 ```
 
-`Countdown` model uses `has_secure_password validations: false` so password is optional (only required when `is_public = false`, enforced by a conditional validation).
+Key model helpers:
+- `owned_by?(user)` — true if `user_id == user.id`
+- `editable_by?(user)` — owned AND not locked
+- `favorited_by?(user)` — `countdown_favorites.exists?(user_id: user.id)`
+- `favorites_count` — `countdown_favorites.size`
 
 ---
 
@@ -101,29 +123,37 @@ Reuses the existing infrastructure:
 - Shows "Copied!" feedback for 2 seconds, then resets
 - Graceful: button still visible if Clipboard API unavailable
 
+### `dashboard_tab_controller.js`
+- Scope: dashboard page tab switching
+- Targets: `tab` (anchor links), `panel` (content divs)
+- Reads URL hash on connect to restore active tab
+- Writes hash via `history.replaceState` on click — bookmarkable tabs
+
 ---
 
 ## Share Experience
 
 After creating a countdown, user lands on `/c/:token` which shows:
-1. Countdown title
+1. Countdown title + private/locked badges
 2. Live ticking timer (years / months / days / hours / minutes / seconds)
 3. Target date
 4. Optional description
 5. "Copy link" button (clipboard)
-6. "Create your own →" link
+6. Favorite/Unfavorite button (logged-in users, public countdowns only) + favorite count
+7. Owner management panel (Edit / Lock / Delete buttons) if `owned_by?(Current.user)`
+8. "Create your own →" link
 
 This page is designed to be embedded in a social media share. The `og:title` and `og:description` meta tags reflect the countdown's title and target date so link previews work on Twitter/Discord/etc.
 
 ---
 
-## Phase 2 Migration Path
+## Phase 3 Migration Path
 
-When user accounts ship:
-- Add `user_id` foreign key (column already present, nullable)
+User accounts shipped in Phase 2. Outstanding:
 - Add `slug` column for vanity URLs (`/u/:username/:slug`)
 - Keep `/c/:token` working as permalink (never breaks existing shares)
-- Password protection can be replaced by proper ownership check for the creator
+- Trending countdowns page ordered by `favorites_count` DESC
+- Turbo Streams for live favorite count without full page reload
 
 ---
 
@@ -131,12 +161,17 @@ When user accounts ship:
 
 | File | Role |
 |------|------|
-| `app/models/countdown.rb` | Model, token generation, `has_secure_password` |
-| `app/controllers/countdowns_controller.rb` | CRUD + auth flow |
-| `app/views/countdowns/` | new / show / unlock templates |
+| `app/models/countdown.rb` | Model, token generation, `has_secure_password`, ownership/favorite helpers |
+| `app/models/countdown_favorite.rb` | Favorites join model |
+| `app/controllers/countdowns_controller.rb` | CRUD + auth flow + lock/unlock |
+| `app/controllers/countdown_favorites_controller.rb` | Favorite toggle |
+| `app/controllers/dashboard_controller.rb` | User dashboard (my countdowns + favorites) |
+| `app/views/countdowns/` | new / show / edit / unlock templates |
+| `app/views/dashboard/index.html.erb` | Dashboard with tabbed sections |
 | `app/javascript/controllers/countdown_controller.js` | Live timer (shared with holidays) |
 | `app/javascript/controllers/countdown_form_controller.js` | Password field toggle |
 | `app/javascript/controllers/clipboard_controller.js` | Copy link button |
+| `app/javascript/controllers/dashboard_tab_controller.js` | Dashboard tab switching |
 | `app/services/date_calculations/time_until_calculator.rb` | Seconds until target (shared) |
 
 ## Strong Parameters (Rails 8.1)

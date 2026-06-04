@@ -15,16 +15,38 @@
   </head>
 
   <body class="bg-slate-50 text-slate-900 min-h-screen">
+    <% if notice = flash[:notice] %>
+      <div class="bg-green-50 border-b border-green-200 text-green-800 text-sm text-center py-2 px-4" id="flash-notice">
+        <%= notice %>
+      </div>
+    <% end %>
+    <% if alert = flash[:alert] %>
+      <div class="bg-red-50 border-b border-red-200 text-red-800 text-sm text-center py-2 px-4" id="flash-alert">
+        <%= alert %>
+      </div>
+    <% end %>
+
     <header class="bg-white border-b border-slate-200 shadow-sm">
       <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
         <%= link_to root_path, class: "text-xl font-bold text-blue-600 hover:text-blue-700" do %>
           Time Ago Calculator
         <% end %>
-        <nav class="hidden sm:flex gap-6 text-sm text-slate-600">
+        <nav class="hidden sm:flex items-center gap-6 text-sm text-slate-600">
           <%= link_to "Time Ago",       time_ago_calculator_path,        class: "hover:text-blue-600" %>
           <%= link_to "Time Until",     time_until_calculator_path,      class: "hover:text-blue-600" %>
           <%= link_to "Date Diff",      date_difference_calculator_path, class: "hover:text-blue-600" %>
           <%= link_to "Age",            age_calculator_path,             class: "hover:text-blue-600" %>
+          <span class="text-slate-300">|</span>
+          <% if Current.user %>
+            <%= link_to "Dashboard", dashboard_path, class: "hover:text-blue-600" %>
+            <span class="text-slate-300">·</span>
+            <span class="text-slate-500"><%= Current.user.email_address %></span>
+            <%= button_to "Sign out", session_path, method: :delete,
+                  class: "text-slate-600 hover:text-red-600 cursor-pointer bg-transparent border-0 p-0 font-inherit text-sm" %>
+          <% else %>
+            <%= link_to "Sign in",    new_session_path,      class: "hover:text-blue-600" %>
+            <%= link_to "Sign up",    new_registration_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium" %>
+          <% end %>
         </nav>
       </div>
     </header>

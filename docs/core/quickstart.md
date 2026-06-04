@@ -53,6 +53,12 @@ Procfile is at `apps/web/Procfile.dev`.
 | `/how-long-ago/moon-landing` | Historical event page |
 | `/countdown/christmas` | Holiday countdown |
 | `/age/taylor-swift` | Celebrity age |
+| `/sign-up` | Create account |
+| `/session/new` | Sign in |
+| `/dashboard` | User dashboard — my countdowns + favorites |
+| `/countdowns/new` | Create custom countdown (no account required) |
+| `/c/:token` | View shared countdown |
+| `/c/:token/edit` | Edit countdown (owner only) |
 | `/up` | Health check |
 
 ---
@@ -191,6 +197,26 @@ Rails on `http://localhost:3000`, Postgres on `5432`, Redis on `6379`.
 
 ---
 
+## Auth
+
+Email + password auth via Rails 8 `Authentication` concern. Sign up at `/sign-up`, sign in at `/session/new`.
+
+- `Current.user` — logged-in user, available everywhere (nil if anonymous)
+- `authenticated?` helper — checks session cookie
+- All pages are public by default (`allow_unauthenticated_access` in `ApplicationController`)
+
+**Password reset:** Implemented via `PasswordsController` + `PasswordsMailer`. Requires ActionMailer configured for your environment (SMTP or a provider).
+
+**OmniAuth:** Gems installed, `Identity` model + migration ready. Add a provider gem + configure in `config/initializers/omniauth.rb`. See comments there for wiring instructions.
+
+**Creating a test user in console:**
+
+```ruby
+User.create!(email_address: "test@example.com", password: "password123", password_confirmation: "password123")
+```
+
+---
+
 ## Useful Rails Commands
 
 ```bash
@@ -198,4 +224,5 @@ bin/rails routes                   # list all routes
 bin/rails db:seed                  # re-seed (idempotent)
 bin/rails sitemap:refresh          # regenerate XML sitemap
 bin/rails runner "Event.count"     # quick DB check
+bin/rails runner "User.count"      # check user count
 ```
