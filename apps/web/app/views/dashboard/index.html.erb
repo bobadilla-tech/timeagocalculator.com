@@ -81,7 +81,7 @@
 
       <% if @pagy_mine.pages > 1 %>
         <div class="mt-6 flex justify-center">
-          <%== pagy_nav(@pagy_mine) %>
+          <%== @pagy_mine.series_nav %>
         </div>
       <% end %>
     <% end %>
@@ -121,7 +121,7 @@
 
       <% if @pagy_fav.pages > 1 %>
         <div class="mt-6 flex justify-center">
-          <%== pagy_nav(@pagy_fav) %>
+          <%== @pagy_fav.series_nav %>
         </div>
       <% end %>
     <% end %>

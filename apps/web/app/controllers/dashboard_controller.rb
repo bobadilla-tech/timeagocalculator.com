@@ -1,14 +1,16 @@
 class DashboardController < ApplicationController
-  include Pagy::Backend
+  include Pagy::Method
 
   before_action :require_user!
 
   def index
     @pagy_mine, @my_countdowns = pagy(
+      :offset,
       Current.user.countdowns.order(created_at: :desc),
       limit: 20
     )
     @pagy_fav, @favorited = pagy(
+      :offset,
       Current.user.favorited_countdowns
              .includes(:countdown_favorites)
              .order("countdown_favorites.created_at desc"),

@@ -2,13 +2,14 @@ events_path   = Rails.root.join("../../data/seeds/historical_events.json")
 holidays_path = Rails.root.join("../../data/seeds/holidays.json")
 
 JSON.parse(File.read(events_path)).each do |attrs|
-  Event.find_or_create_by(slug: attrs["slug"]) do |e|
-    e.title       = attrs["title"]
-    e.starts_at   = attrs["starts_at"]
-    e.category    = attrs["category"]
-    e.source      = attrs["source"]
-    e.description = attrs["description"]
-  end
+  event = Event.find_or_initialize_by(slug: attrs["slug"])
+  event.title       = attrs["title"]
+  event.starts_at   = attrs["starts_at"]
+  event.category    = attrs["category"]
+  event.source      = attrs["source"]
+  event.description = attrs["description"]
+  event.body        = attrs["body"] if attrs["body"].present?
+  event.save!
 end
 
 JSON.parse(File.read(holidays_path)).each do |attrs|

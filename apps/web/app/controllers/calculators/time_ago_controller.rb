@@ -13,6 +13,8 @@ module Calculators
         description: "Calculate how long ago any date was in years, months, and days."
       )
 
+      @featured_events = Event.published.order(:starts_at)
+
       @result = nil
       @error  = nil
 

@@ -50,16 +50,10 @@
     <h2 class="text-xl font-semibold text-slate-800">How to use</h2>
     <p class="text-slate-600 mt-2">Select any past date and click Calculate. You'll get the exact difference in years, months, days, hours, and minutes from that date to today.</p>
 
-    <h2 class="text-xl font-semibold text-slate-800 mt-6">Popular historical dates</h2>
+    <h2 class="text-xl font-semibold text-slate-800 mt-6">Popular historical events</h2>
     <div class="flex flex-wrap gap-3 mt-3">
-      <% [
-        [ "Moon Landing (1969)",    "1969-07-20" ],
-        [ "Berlin Wall Fall (1989)", "1989-11-09" ],
-        [ "Y2K / Jan 1, 2000",      "2000-01-01" ],
-        [ "9/11 (2001)",            "2001-09-11" ],
-        [ "COVID Pandemic (2020)",  "2020-03-11" ]
-      ].each do |label, date| %>
-        <%= link_to label, time_ago_calculator_path(date: date),
+      <% @featured_events.each do |event| %>
+        <%= link_to event.title, how_long_ago_path(event.slug),
               class: "text-sm bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 px-3 py-1.5 rounded-full transition-colors" %>
       <% end %>
     </div>
