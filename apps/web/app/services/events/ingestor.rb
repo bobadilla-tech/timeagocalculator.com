@@ -110,9 +110,12 @@ module Events
     def upsert_all(records)
       return 0 if records.empty?
 
+      # All records must share identical key sets for upsert_all (sources have different optional fields)
+      all_keys    = records.flat_map(&:keys).uniq
+      defaults    = all_keys.index_with(nil)
       now         = Time.current
       upsert_data = records.map do |rec|
-        rec.except(:wikipedia_title).merge(created_at: now, updated_at: now)
+        defaults.merge(rec).except(:wikipedia_title).merge(created_at: now, updated_at: now)
       end
 
       count = 0

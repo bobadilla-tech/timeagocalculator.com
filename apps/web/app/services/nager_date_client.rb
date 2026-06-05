@@ -47,8 +47,9 @@ class NagerDateClient
   # Returns raw holiday hashes: [{ "date" => "2026-01-01", "name" => "New Year's Day", ... }]
   def self.holidays_with_names(year:, country_code:)
     Rails.cache.fetch("nagerdate/holidays_full/#{year}/#{country_code}", expires_in: 24.hours) do
-      uri = URI("#{BASE_URL}/PublicHolidays/#{year}/#{country_code}")
-      JSON.parse(Net::HTTP.get(uri))
+      uri    = URI("#{BASE_URL}/PublicHolidays/#{year}/#{country_code}")
+      result = JSON.parse(Net::HTTP.get(uri))
+      result.is_a?(Array) ? result : []
     end
   rescue => e
     Rails.logger.warn "[NagerDateClient] holidays_with_names error #{year}/#{country_code}: #{e.message}"
