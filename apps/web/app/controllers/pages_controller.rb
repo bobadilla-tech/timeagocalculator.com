@@ -123,12 +123,35 @@ class PagesController < ApplicationController
     set_meta_tags(
       title: @page.title,
       description: @page.description,
-      canonical: url_for(only_path: false)
+      canonical: url_for(only_path: false),
+      og: {
+        title: @page.title,
+        description: @page.description,
+        image: (request.base_url + "/icon.jpeg")
+      },
+      twitter: {
+        title: @page.title,
+        description: @page.description,
+        image: (request.base_url + "/icon.jpeg")
+      }
     )
-    @schema = Seo::StructuredDataBuilder.web_application(
+    app_schema = Seo::StructuredDataBuilder.web_application(
       name: @page.title,
       url: url_for(only_path: false),
       description: @page.description
     )
+
+    # Add page-specific structured data (FAQ) for Date Calculator
+    if action_name == 'date_calculator'
+      faq_pairs = {
+        "How do I add months to a date?" => "Select 'Months' as the unit, set the amount, and choose Add. Month-end dates are handled so Jan 31 + 1 month -> Feb 28/29.",
+        "Can I subtract weeks?" => "Yes — choose Subtract and select Weeks as the unit to go back in time by the specified number of weeks.",
+        "Does the calculator respect timezones?" => "The calculator uses the browser's timezone for previews; server-side results use the site's configured timezone for authoritative results."
+      }
+
+      @schema = [app_schema, Seo::StructuredDataBuilder.faq(faq_pairs)]
+    else
+      @schema = app_schema
+    end
   end
 end
