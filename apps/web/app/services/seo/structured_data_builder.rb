@@ -46,5 +46,21 @@ module Seo
         end
       }
     end
+
+    def self.howto(name:, description:, steps:)
+      {
+        "@context" => "https://schema.org",
+        "@type" => "HowTo",
+        "name" => name,
+        "description" => description,
+        "step" => steps.map.with_index(1) do |s, i|
+          {
+            "@type" => "HowToStep",
+            "name" => s[:name] || "Step #{i}",
+            "text" => s[:text]
+          }
+        end
+      }
+    end
   end
 end

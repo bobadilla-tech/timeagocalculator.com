@@ -127,12 +127,12 @@ class PagesController < ApplicationController
       og: {
         title: @page.title,
         description: @page.description,
-        image: (request.base_url + "/icon.jpeg")
+        image: (action_name == 'date_calculator' ? (request.base_url + "/social-preview.svg") : (request.base_url + "/icon.jpeg"))
       },
       twitter: {
         title: @page.title,
         description: @page.description,
-        image: (request.base_url + "/icon.jpeg")
+        image: (action_name == 'date_calculator' ? (request.base_url + "/social-preview.svg") : (request.base_url + "/icon.jpeg"))
       }
     )
     app_schema = Seo::StructuredDataBuilder.web_application(
@@ -149,7 +149,16 @@ class PagesController < ApplicationController
         "Does the calculator respect timezones?" => "The calculator uses the browser's timezone for previews; server-side results use the site's configured timezone for authoritative results."
       }
 
-      @schema = [app_schema, Seo::StructuredDataBuilder.faq(faq_pairs)]
+      howto_steps = [
+        { name: "Choose a start date", text: "Pick the date you want to calculate from using the Start Date field." },
+        { name: "Pick an operation", text: "Select Add to move forward or Subtract to move backward in time." },
+        { name: "Enter amount and unit", text: "Set the amount and choose Days, Weeks, Months, or Years." },
+        { name: "Calculate", text: "Click Calculate Date to see the result. Quick-buttons provide common presets." }
+      ]
+
+      @schema = [app_schema, Seo::StructuredDataBuilder.faq(faq_pairs), Seo::StructuredDataBuilder.howto(name: @page.title, description: @page.description, steps: howto_steps)]
+      # Use a custom social preview image for better Open Graph cards
+      @og_image = request.base_url + '/social-preview.svg'
     else
       @schema = app_schema
     end

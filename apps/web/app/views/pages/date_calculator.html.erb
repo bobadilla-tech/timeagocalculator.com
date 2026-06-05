@@ -10,27 +10,27 @@
     <form data-controller="date-calculator" data-date-calculator-target="form" class="mt-4">
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-slate-700">Start Date *</label>
-          <input type="date" data-date-calculator-target="date" data-action="input->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2" value="<%= Date.current.strftime('%Y-%m-%d') %>">
+          <label for="date_calculator_date" class="block text-sm font-medium text-slate-700">Start Date *</label>
+          <input id="date_calculator_date" type="date" data-date-calculator-target="date" data-action="input->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2" value="<%= Date.current.strftime('%Y-%m-%d') %>" aria-describedby="date_calculator_example">
           <p class="text-xs text-slate-500 mt-1">The date to calculate from</p>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700">Operation *</label>
-          <select data-date-calculator-target="operation" data-action="change->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2">
+          <label for="date_calculator_operation" class="block text-sm font-medium text-slate-700">Operation *</label>
+          <select id="date_calculator_operation" data-date-calculator-target="operation" data-action="change->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2">
             <option value="add">+ Add</option>
             <option value="subtract">- Subtract</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700">Amount *</label>
-          <input type="number" min="0" value="30" data-date-calculator-target="amount" data-action="input->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2">
+          <label for="date_calculator_amount" class="block text-sm font-medium text-slate-700">Amount *</label>
+          <input id="date_calculator_amount" type="number" min="0" value="30" data-date-calculator-target="amount" data-action="input->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2">
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700">Time Unit *</label>
-          <select data-date-calculator-target="unit" data-action="change->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2">
+          <label for="date_calculator_unit" class="block text-sm font-medium text-slate-700">Time Unit *</label>
+          <select id="date_calculator_unit" data-date-calculator-target="unit" data-action="change->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2">
             <option value="days">Days</option>
             <option value="weeks">Weeks</option>
             <option value="months">Months</option>
@@ -39,10 +39,10 @@
         </div>
       </div>
 
-      <div class="mt-4 bg-sky-50 border-l-4 border-sky-200 p-3 text-sm text-slate-700">Example: Add 30 days to <span data-date-calculator-target="example"><%= Date.current.strftime('%B %-d, %Y') %></span></div>
+      <div class="mt-4 bg-sky-50 border-l-4 border-sky-200 p-3 text-sm text-slate-700">Example: Add 30 days to <span id="date_calculator_example" data-date-calculator-target="example"><%= Date.current.strftime('%B %-d, %Y') %></span></div>
 
       <div class="mt-4">
-        <button type="button" data-action="click->date-calculator#calculate" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded">Calculate Date</button>
+        <button type="button" data-action="click->date-calculator#calculate" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded" aria-label="Calculate date">Calculate Date</button>
       </div>
     </form>
   </div>
@@ -51,14 +51,14 @@
     <h3 class="font-semibold mb-3">Popular Date Calculations</h3>
     <div class="grid grid-cols-4 gap-2">
       <% [7,14,30,45,60,90,180,365].each do |d| %>
-        <button type="button" data-action="click->date-calculator#preset" data-value="<%= d %>" class="border rounded py-2 text-sm"> <%= d %> Days From Now</button>
+        <button type="button" data-action="click->date-calculator#preset" data-value="<%= d %>" class="border rounded py-2 text-sm" aria-pressed="false"> <%= d %> Days From Now</button>
       <% end %>
     </div>
 
     <h4 class="mt-4 font-medium">Days Ago</h4>
     <div class="grid grid-cols-4 gap-2 mt-2">
       <% [30,60,90,180].each do |d| %>
-        <button type="button" data-action="click->date-calculator#presetAgo" data-value="<%= d %>" class="border rounded py-2 text-sm"> <%= d %> Days Ago</button>
+        <button type="button" data-action="click->date-calculator#presetAgo" data-value="<%= d %>" class="border rounded py-2 text-sm" aria-pressed="false"> <%= d %> Days Ago</button>
       <% end %>
     </div>
   </div>

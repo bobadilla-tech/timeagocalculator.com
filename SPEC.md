@@ -486,7 +486,10 @@ Returns:
 
 # Project Structure
 
-The project will be organized as a monorepo, even though the initial implementation consists of a single Rails application. This keeps the architecture flexible for future additions such as APIs, workers, ingestion services, and administrative tools.
+The project will be organized as a monorepo, even though the initial
+implementation consists of a single Rails application. This keeps the
+architecture flexible for future additions such as APIs, workers, ingestion
+services, and administrative tools.
 
 ## Repository Layout
 
@@ -542,7 +545,8 @@ apps/
 └── admin/
 ```
 
-The Rails application should remain isolated within apps/web to avoid repository root clutter.
+The Rails application should remain isolated within apps/web to avoid repository
+root clutter.
 
 ## docs/
 
@@ -685,7 +689,8 @@ data/
 
 ## Future-Proofing
 
-The repository should be organized so that future services can be added without restructuring the project.
+The repository should be organized so that future services can be added without
+restructuring the project.
 
 Potential future services:
 
@@ -695,4 +700,5 @@ Potential future services:
 - Widget rendering service
 - AI content generation service
 
-The initial deployment remains a single Rails monolith running on one VPS, but the repository structure should support future extraction when necessary.
+The initial deployment remains a single Rails monolith running on one VPS, but
+the repository structure should support future extraction when necessary.
