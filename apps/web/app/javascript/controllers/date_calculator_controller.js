@@ -17,6 +17,11 @@ export default class extends Controller {
 
   connect() {
     this.updateExample()
+    // Observe input changes to update example in real-time
+    if (this.dateTarget) this.dateTarget.addEventListener('input', () => this.updateExample())
+    if (this.amountTarget) this.amountTarget.addEventListener('input', () => this.updateExample())
+    if (this.unitTarget) this.unitTarget.addEventListener('change', () => this.updateExample())
+    if (this.operationTarget) this.operationTarget.addEventListener('change', () => this.updateExample())
   }
 
   updateExample() {

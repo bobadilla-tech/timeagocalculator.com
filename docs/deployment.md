@@ -179,7 +179,8 @@ docker compose -f compose.yml logs web | tail -50
 
 ## Part 5.1: Seed Events Data
 
-Seed files are bundled inside the image at `db/seeds/data/`. No volume mount needed.
+Seed files are bundled inside the image at `db/seeds/data/`. No volume mount
+needed.
 
 Run once after first deploy (and any time starting from a fresh DB):
 
@@ -194,7 +195,8 @@ docker compose -f compose.yml exec web bin/rails events:seed_leaders
 docker compose -f compose.yml exec web bin/rails events:ingest
 ```
 
-`events:ingest` loads 2 years behind + 3 years ahead. `seed_leaders` is idempotent — safe to re-run.
+`events:ingest` loads 2 years behind + 3 years ahead. `seed_leaders` is
+idempotent — safe to re-run.
 
 ### Backfill missing images (optional)
 

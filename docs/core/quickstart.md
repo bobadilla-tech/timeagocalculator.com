@@ -37,45 +37,50 @@ timeagocalculator.com/
 ├── apps/web/                   # Rails 8.1 application
 │   ├── app/
 │   │   ├── controllers/
-│   │   │   ├── calculators/    # 4 calculator controllers (namespaced)
-│   │   │   ├── concerns/
-│   │   │   │   └── seo_meta_taggable.rb
+│   │   │   ├── calculators/    # Time Ago, Time Until, Date Diff, Age, Business Days,
+│   │   │   │                   # Day of the Week — all namespaced under Calculators::
+│   │   │   ├── date_pages_controller.rb  # /date/:year/:month/:day SEO result pages
+│   │   │   ├── home_controller.rb        # Landing page (events + hero forms)
 │   │   │   ├── events_controller.rb
-│   │   │   ├── holidays_controller.rb
 │   │   │   └── people_controller.rb
 │   │   ├── models/
-│   │   │   ├── event.rb
-│   │   │   └── holiday.rb
+│   │   │   └── event.rb
 │   │   ├── services/
-│   │   │   ├── date_calculations/   # Pure Ruby calculators
-│   │   │   ├── nager_date_client.rb # Nager.Date API wrapper (holiday data)
+│   │   │   ├── date_calculations/   # Pure Ruby calculators (TimeAgoCalculator, TimeUntilCalculator)
+│   │   │   ├── events/
+│   │   │   │   ├── ingestor.rb      # Orchestrates all sources
+│   │   │   │   └── sources/         # curated, leaders, nager_date, open_holidays, calendarific
+│   │   │   ├── nager_date_client.rb # Nager.Date API wrapper
 │   │   │   └── seo/
 │   │   │       └── structured_data_builder.rb
 │   │   ├── views/
 │   │   │   ├── calculators/
+│   │   │   ├── date_pages/          # /date/:year/:month/:day result page
+│   │   │   ├── home/                # Landing page
 │   │   │   ├── events/
-│   │   │   ├── holidays/
 │   │   │   ├── people/
-│   │   │   └── shared/          # Reusable partials
+│   │   │   └── shared/              # _footer, _date_formats, _structured_data
 │   │   └── javascript/
 │   │       └── controllers/
-│   │           ├── countdown_controller.js
-│   │           ├── time_ago_controller.js
-│   │           └── date_diff_controller.js
+│   │           ├── countdown_controller.js      # Live countdown for future dates/events
+│   │           ├── time_since_controller.js     # Live elapsed seconds for past dates
+│   │           ├── date_redirect_controller.js  # Form → /date/:year/:month/:day
+│   │           └── navbar_controller.js         # Mobile hamburger toggle
 │   ├── config/
 │   │   ├── routes.rb
 │   │   ├── sitemap.rb
 │   │   └── initializers/
 │   │       ├── sidekiq.rb
 │   │       ├── rack_attack.rb
-│   │       └── meta_tags.rb
+│   │       └── suppress_gem_warnings.rb
 │   └── db/
 │       ├── migrate/
+│       ├── seeds/
+│       │   └── data/                # JSON seed files (included in Docker image)
+│       │       ├── curated_events.json   # Annual/recurring events template
+│       │       └── leaders.json          # US Presidents, UK PMs, UK Monarchs
 │       └── seeds.rb
-├── data/
-│   └── seeds/
-│       ├── historical_events.json
-│       └── holidays.json
+├── data/                       # Legacy location — NOT in Docker image. Use db/seeds/data/ instead.
 ├── infra/
 │   ├── docker/
 │   │   ├── compose.yml          # Production
@@ -87,49 +92,38 @@ timeagocalculator.com/
 └── docs/
 ```
 
+> **Seed file location:** All JSON seed files must live in
+> `apps/web/db/seeds/data/` (inside the Docker build context). The `data/`
+> directory at the monorepo root is **not** copied into the container.
+
 ---
 
-## Adding a Historical Event
+## Adding a Curated Event
 
-Add to `data/seeds/historical_events.json`:
+Add to `apps/web/db/seeds/data/curated_events.json`:
 
 ```json
 {
   "title": "Event Name",
-  "slug": "event-slug",
-  "starts_at": "1990-01-01T00:00:00Z",
-  "category": "historical",
-  "source": "wikipedia",
-  "description": "One or two sentences about the event."
+  "slug_base": "event-name",
+  "category": "sports",
+  "recurrence": "annual",
+  "typical_month": 2,
+  "typical_day": 1,
+  "description": "One or two sentences.",
+  "wikipedia_title": "Event Name",
+  "country_codes": ["US"],
+  "featured": false
 }
 ```
 
-Then re-seed (idempotent):
+Then re-ingest (idempotent):
 
 ```bash
-bin/rails db:seed
+bin/rails events:ingest
 ```
 
-The page will be available at `/how-long-ago/event-slug`.
-
----
-
-## Adding a Holiday Countdown
-
-Add to `data/seeds/holidays.json`:
-
-```json
-{
-  "title": "Holiday Name",
-  "slug": "holiday-slug",
-  "month": 3,
-  "day": 17,
-  "country": "US",
-  "description": "Short description."
-}
-```
-
-Re-seed, then visit `/countdown/holiday-slug`.
+The event will be available at `/events/event-name-2026`.
 
 ---
 
@@ -193,9 +187,13 @@ User.create!(email_address: "test@example.com", password: "password123", passwor
 ## Useful Rails Commands
 
 ```bash
-bin/rails routes                   # list all routes
-bin/rails db:seed                  # re-seed (idempotent)
-bin/rails sitemap:refresh          # regenerate XML sitemap
-bin/rails runner "Event.count"     # quick DB check
-bin/rails runner "User.count"      # check user count
+bin/rails routes                         # list all routes
+bin/rails db:seed                        # re-seed base data (idempotent)
+bin/rails sitemap:refresh                # regenerate XML sitemap
+bin/rails events:seed_leaders            # seed US Presidents / UK PMs / UK Monarchs (~62 records)
+bin/rails events:ingest                  # full event ingest (2yr behind + 3yr ahead, fetches images)
+bin/rails events:refresh                 # refresh upcoming events (current + next 2yr, faster)
+bin/rails events:backfill_images         # backfill Wikipedia images for events missing image_url
+bin/rails runner "Event.count"           # quick DB check
+bin/rails runner "Event.where(category: 'leaders').count"  # verify leaders seeded
 ```

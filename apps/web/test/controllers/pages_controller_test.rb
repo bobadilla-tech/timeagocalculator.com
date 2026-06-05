@@ -24,6 +24,18 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "date calculator page has form and presets" do
+    get date_calculator_path
+    assert_response :success
+    assert_select "h1", "Date Calculator"
+    assert_select "input[data-date-calculator-target='date']"
+    assert_select "select[data-date-calculator-target='operation']"
+    assert_select "input[data-date-calculator-target='amount']"
+    assert_select "select[data-date-calculator-target='unit']"
+    assert_select "button", /Calculate Date/
+    assert_select "button[data-action='click->date-calculator#preset']", minimum: 1
+  end
+
   test "home footer includes sitemap sections and Bobadilla copyright" do
     get root_path
 

@@ -7,6 +7,7 @@ SitemapGenerator::Sitemap.create do
   add "/time-until-calculator",      changefreq: "monthly", priority: 0.9
   add "/date-difference-calculator", changefreq: "monthly", priority: 0.9
   add "/age-calculator",             changefreq: "monthly", priority: 0.9
+  add "/date-calculator",           changefreq: "monthly", priority: 0.8
 
   Event.published.find_each do |event|
     add "/how-long-ago/#{event.slug}", changefreq: "yearly", priority: 0.7,

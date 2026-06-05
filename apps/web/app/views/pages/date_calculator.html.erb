@@ -1,3 +1,5 @@
+<%= render "shared/structured_data", schema: @schema %>
+
 <div class="max-w-4xl mx-auto">
   <h1 class="text-3xl font-bold text-slate-900 mb-2">Date Calculator</h1>
   <p class="text-slate-500 mb-6">Add or subtract time from any date to find future or past dates</p>
@@ -9,13 +11,13 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-slate-700">Start Date *</label>
-          <input type="date" data-date-calculator-target="date" class="mt-1 block w-full border rounded px-3 py-2" value="<%= Date.current.strftime('%Y-%m-%d') %>">
+          <input type="date" data-date-calculator-target="date" data-action="input->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2" value="<%= Date.current.strftime('%Y-%m-%d') %>">
           <p class="text-xs text-slate-500 mt-1">The date to calculate from</p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-700">Operation *</label>
-          <select data-date-calculator-target="operation" class="mt-1 block w-full border rounded px-3 py-2">
+          <select data-date-calculator-target="operation" data-action="change->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2">
             <option value="add">+ Add</option>
             <option value="subtract">- Subtract</option>
           </select>
@@ -23,12 +25,12 @@
 
         <div>
           <label class="block text-sm font-medium text-slate-700">Amount *</label>
-          <input type="number" min="0" value="30" data-date-calculator-target="amount" class="mt-1 block w-full border rounded px-3 py-2">
+          <input type="number" min="0" value="30" data-date-calculator-target="amount" data-action="input->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2">
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-700">Time Unit *</label>
-          <select data-date-calculator-target="unit" class="mt-1 block w-full border rounded px-3 py-2">
+          <select data-date-calculator-target="unit" data-action="change->date-calculator#change" class="mt-1 block w-full border rounded px-3 py-2">
             <option value="days">Days</option>
             <option value="weeks">Weeks</option>
             <option value="months">Months</option>

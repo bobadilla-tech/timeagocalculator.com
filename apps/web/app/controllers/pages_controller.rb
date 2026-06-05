@@ -125,5 +125,10 @@ class PagesController < ApplicationController
       description: @page.description,
       canonical: url_for(only_path: false)
     )
+    @schema = Seo::StructuredDataBuilder.web_application(
+      name: @page.title,
+      url: url_for(only_path: false),
+      description: @page.description
+    )
   end
 end
