@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   get "/time-ago-calculator",        to: "calculators/time_ago#show",         as: :time_ago_calculator
+  get "/hours-ago",                  to: "calculators/hours_ago#show",      as: :hours_ago_calculator
   get "/time-until-calculator",      to: "calculators/time_until#show",       as: :time_until_calculator
   get "/date-difference-calculator", to: "calculators/date_difference#show",  as: :date_difference_calculator
   get "/age-calculator",             to: "calculators/age#show",              as: :age_calculator
@@ -14,7 +15,7 @@ Rails.application.routes.draw do
   get  "/countdown-widget-builder",    to: "widgets#builder",                 as: :countdown_widget_builder
   get  "/widget/countdown",            to: "widgets#countdown",               as: :countdown_widget
   get  "/date-calculator",             to: "pages#date_calculator",             as: :date_calculator
-  get  "/day-of-the-week",             to: "pages#day_of_the_week",             as: :day_of_the_week
+  get  "/day-of-the-week",             to: "calculators/day_of_the_week#show",  as: :day_of_the_week
   get  "/recurring-date-finder",       to: "pages#recurring_date_finder",       as: :recurring_date_finder
   get  "/week-number",                 to: "pages#week_number",                 as: :week_number
   get  "/anniversary-calculator",      to: "pages#anniversary_calculator",      as: :anniversary_calculator
