@@ -2,7 +2,10 @@
 
 ## Overview
 
-Email + password authentication built on Rails 8's `rails g authentication` scaffold. Session-based: a `Session` record is created on sign-in and its ID stored in a signed httpOnly cookie. `Current.user` is available everywhere. All pages are public by default — auth is opt-in.
+Email + password authentication built on Rails 8's `rails g authentication`
+scaffold. Session-based: a `Session` record is created on sign-in and its ID
+stored in a signed httpOnly cookie. `Current.user` is available everywhere. All
+pages are public by default — auth is opt-in.
 
 ---
 
@@ -34,19 +37,26 @@ identities          # OmniAuth — not yet wired, ready for Phase 3
   # unique index on [provider, uid]
 ```
 
-`User` uses `has_secure_password` (bcrypt). `email_address` is normalized to lowercase+stripped via `normalizes`.
+`User` uses `has_secure_password` (bcrypt). `email_address` is normalized to
+lowercase+stripped via `normalizes`.
 
 ---
 
 ## Session Mechanism
 
-1. Sign-in: `User.authenticate_by(email_address:, password:)` → returns `User` or `nil`
-2. On success: `start_new_session_for(user)` creates a `Session` record, sets `cookies.signed.permanent[:session_id]`
-3. Cookie: signed, httpOnly, `same_site: :lax`, no expiry (permanent until sign-out)
-4. Every request: `resume_session` reads `cookies.signed[:session_id]` → `Session.find_by(id:)` → sets `Current.session`
-5. Sign-out: `terminate_session` destroys `Session` record + deletes cookie → server-side revocation
+1. Sign-in: `User.authenticate_by(email_address:, password:)` → returns `User`
+   or `nil`
+2. On success: `start_new_session_for(user)` creates a `Session` record, sets
+   `cookies.signed.permanent[:session_id]`
+3. Cookie: signed, httpOnly, `same_site: :lax`, no expiry (permanent until
+   sign-out)
+4. Every request: `resume_session` reads `cookies.signed[:session_id]` →
+   `Session.find_by(id:)` → sets `Current.session`
+5. Sign-out: `terminate_session` destroys `Session` record + deletes cookie →
+   server-side revocation
 
-**Why server-side sessions over JWT:** Immediate revocation (destroy the record = session dead), no token leakage risk, simple implementation.
+**Why server-side sessions over JWT:** Immediate revocation (destroy the record
+= session dead), no token leakage risk, simple implementation.
 
 ---
 
@@ -59,13 +69,18 @@ class Current < ActiveSupport::CurrentAttributes
 end
 ```
 
-`Current.user` is available in every controller and view within the request lifecycle. It's nil for unauthenticated requests. No thread-safety issues — `CurrentAttributes` is request-scoped.
+`Current.user` is available in every controller and view within the request
+lifecycle. It's nil for unauthenticated requests. No thread-safety issues —
+`CurrentAttributes` is request-scoped.
 
 ---
 
 ## Public-by-Default Design
 
-The `Authentication` concern's `included` block registers `before_action :require_authentication` everywhere. The original `require_authentication` redirects to sign-in if no session. This site is public, so `ApplicationController` overrides the method:
+The `Authentication` concern's `included` block registers
+`before_action :require_authentication` everywhere. The original
+`require_authentication` redirects to sign-in if no session. This site is
+public, so `ApplicationController` overrides the method:
 
 ```ruby
 # app/controllers/application_controller.rb
@@ -74,7 +89,9 @@ def require_authentication
 end
 ```
 
-This means `Current.user` is populated on every request (if logged in), but anonymous users are never redirected. Controllers needing enforced auth define their own guard:
+This means `Current.user` is populated on every request (if logged in), but
+anonymous users are never redirected. Controllers needing enforced auth define
+their own guard:
 
 ```ruby
 before_action :require_user!
@@ -86,23 +103,26 @@ def require_user!
 end
 ```
 
-`SessionsController` and `RegistrationsController` call `allow_unauthenticated_access` to explicitly skip the (now-no-op) `require_authentication` — this is fine and keeps the convention intact for when stricter auth is added later.
+`SessionsController` and `RegistrationsController` call
+`allow_unauthenticated_access` to explicitly skip the (now-no-op)
+`require_authentication` — this is fine and keeps the convention intact for when
+stricter auth is added later.
 
 ---
 
 ## Routes
 
-| Method | Path | Controller#Action | Purpose |
-|--------|------|------------------|---------|
-| `GET` | `/sign-up` | `registrations#new` | Registration form |
-| `POST` | `/sign-up` | `registrations#create` | Create user + sign in |
-| `GET` | `/session/new` | `sessions#new` | Sign-in form |
-| `POST` | `/session` | `sessions#create` | Create session |
-| `DELETE` | `/session` | `sessions#destroy` | Sign out |
-| `GET` | `/passwords/new` | `passwords#new` | Password reset request |
-| `POST` | `/passwords` | `passwords#create` | Send reset email |
-| `GET` | `/passwords/:token/edit` | `passwords#edit` | Reset form (from email link) |
-| `PATCH` | `/passwords/:token` | `passwords#update` | Save new password |
+| Method   | Path                     | Controller#Action      | Purpose                      |
+| -------- | ------------------------ | ---------------------- | ---------------------------- |
+| `GET`    | `/sign-up`               | `registrations#new`    | Registration form            |
+| `POST`   | `/sign-up`               | `registrations#create` | Create user + sign in        |
+| `GET`    | `/session/new`           | `sessions#new`         | Sign-in form                 |
+| `POST`   | `/session`               | `sessions#create`      | Create session               |
+| `DELETE` | `/session`               | `sessions#destroy`     | Sign out                     |
+| `GET`    | `/passwords/new`         | `passwords#new`        | Password reset request       |
+| `POST`   | `/passwords`             | `passwords#create`     | Send reset email             |
+| `GET`    | `/passwords/:token/edit` | `passwords#edit`       | Reset form (from email link) |
+| `PATCH`  | `/passwords/:token`      | `passwords#update`     | Save new password            |
 
 ---
 
@@ -119,20 +139,27 @@ POST /sign-up { user: { email_address, password, password_confirmation } }
     failure → render :new, 422 (validation errors shown)
 ```
 
-`RegistrationsController` uses `params.expect` (Rails 8.1) for strict strong params.
+`RegistrationsController` uses `params.expect` (Rails 8.1) for strict strong
+params.
 
 ---
 
 ## Password Reset Flow
 
 1. `GET /passwords/new` → email input form
-2. `POST /passwords` → find user by `email_address`, generate signed token, send `PasswordsMailer#reset`
+2. `POST /passwords` → find user by `email_address`, generate signed token, send
+   `PasswordsMailer#reset`
 3. Email contains link: `GET /passwords/:token/edit`
-4. `PATCH /passwords/:token` → verify token, update `password_digest`, sign in user
+4. `PATCH /passwords/:token` → verify token, update `password_digest`, sign in
+   user
 
-Token is a signed `GlobalID` (generated by `User#signed_id`) — no separate `password_reset_token` column needed. Expires in 15 minutes (configurable in mailer).
+Token is a signed `GlobalID` (generated by `User#signed_id`) — no separate
+`password_reset_token` column needed. Expires in 15 minutes (configurable in
+mailer).
 
-**ActionMailer delivery:** In development, default is `:test` (emails go to `ActionMailer::Base.deliveries`). Set `config.action_mailer.delivery_method` in your environment config to use SMTP or a provider.
+**ActionMailer delivery:** In development, default is `:test` (emails go to
+`ActionMailer::Base.deliveries`). Set `config.action_mailer.delivery_method` in
+your environment config to use SMTP or a provider.
 
 ---
 
@@ -163,21 +190,22 @@ Token is a signed `GlobalID` (generated by `User#signed_id`) — no separate `pa
      redirect_to root_path
    end
    ```
-5. `omniauth-rails_csrf_protection` gem already installed — POST-only callback enforcement active.
+5. `omniauth-rails_csrf_protection` gem already installed — POST-only callback
+   enforcement active.
 
 ---
 
 ## Related Files
 
-| File | Role |
-|------|------|
-| `app/controllers/concerns/authentication.rb` | Core concern: session resume, start, terminate |
-| `app/controllers/sessions_controller.rb` | Sign in / sign out |
-| `app/controllers/registrations_controller.rb` | Sign up |
-| `app/controllers/passwords_controller.rb` | Password reset |
-| `app/models/user.rb` | `has_secure_password`, associations |
-| `app/models/session.rb` | Session record |
-| `app/models/current.rb` | `CurrentAttributes` — `Current.user` |
-| `app/models/identity.rb` | OmniAuth identity (Phase 3) |
-| `app/mailers/passwords_mailer.rb` | Reset email |
-| `config/initializers/omniauth.rb` | Provider config stub |
+| File                                          | Role                                           |
+| --------------------------------------------- | ---------------------------------------------- |
+| `app/controllers/concerns/authentication.rb`  | Core concern: session resume, start, terminate |
+| `app/controllers/sessions_controller.rb`      | Sign in / sign out                             |
+| `app/controllers/registrations_controller.rb` | Sign up                                        |
+| `app/controllers/passwords_controller.rb`     | Password reset                                 |
+| `app/models/user.rb`                          | `has_secure_password`, associations            |
+| `app/models/session.rb`                       | Session record                                 |
+| `app/models/current.rb`                       | `CurrentAttributes` — `Current.user`           |
+| `app/models/identity.rb`                      | OmniAuth identity (Phase 3)                    |
+| `app/mailers/passwords_mailer.rb`             | Reset email                                    |
+| `config/initializers/omniauth.rb`             | Provider config stub                           |

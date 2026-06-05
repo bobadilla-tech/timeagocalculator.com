@@ -22,15 +22,16 @@ User → Caddy (TLS + gzip + HSTS) → Rails (port 3000) → PostgreSQL + Redis
 
 **Docker services (`infra/docker/compose.yml`):**
 
-| Service | Image | Role |
-|---------|-------|------|
-| `web` | local Dockerfile | Rails app |
-| `sidekiq` | local Dockerfile | Background jobs |
-| `postgres` | postgres:17-alpine | Database |
-| `redis` | redis:7-alpine | Cache / queues |
-| `caddy` | caddy:2-alpine | Reverse proxy + auto-HTTPS |
+| Service    | Image              | Role                       |
+| ---------- | ------------------ | -------------------------- |
+| `web`      | local Dockerfile   | Rails app                  |
+| `sidekiq`  | local Dockerfile   | Background jobs            |
+| `postgres` | postgres:17-alpine | Database                   |
+| `redis`    | redis:7-alpine     | Cache / queues             |
+| `caddy`    | caddy:2-alpine     | Reverse proxy + auto-HTTPS |
 
 Caddy config: `infra/caddy/Caddyfile`
+
 - Redirects `www` → apex
 - HSTS, X-Frame-Options, Referrer-Policy headers
 
@@ -115,7 +116,9 @@ RAILS_MASTER_KEY=<32-char hex — see below>
 SECRET_KEY_BASE=<generate below>
 ```
 
-**Important:** `RAILS_MASTER_KEY` is read from `.env` by the container — the file `apps/web/config/master.key` is NOT mounted or copied into the image. Get the value from your local machine:
+**Important:** `RAILS_MASTER_KEY` is read from `.env` by the container — the
+file `apps/web/config/master.key` is NOT mounted or copied into the image. Get
+the value from your local machine:
 
 ```bash
 # On your local Mac:
@@ -142,15 +145,17 @@ openssl rand -hex 64
 
 Domain `timeagocalculator.com` is on Cloudflare.
 
-1. Go to [dash.cloudflare.com](https://dash.cloudflare.com) → `timeagocalculator.com` → DNS
+1. Go to [dash.cloudflare.com](https://dash.cloudflare.com) →
+   `timeagocalculator.com` → DNS
 2. Add:
 
-| Type | Name | Content | Proxy status |
-|------|------|---------|--------------|
-| A | `@` | `YOUR_VPS_IP` | Proxied ☁️ |
-| A | `www` | `YOUR_VPS_IP` | Proxied ☁️ |
+| Type | Name  | Content       | Proxy status |
+| ---- | ----- | ------------- | ------------ |
+| A    | `@`   | `YOUR_VPS_IP` | Proxied ☁️   |
+| A    | `www` | `YOUR_VPS_IP` | Proxied ☁️   |
 
-Cloudflare proxy is fine — Let's Encrypt HTTP-01 challenge works through it. Wait ~1 min for propagation before deploying.
+Cloudflare proxy is fine — Let's Encrypt HTTP-01 challenge works through it.
+Wait ~1 min for propagation before deploying.
 
 ---
 
@@ -161,7 +166,8 @@ cd ~/server/timeagocalculator.com/infra/docker
 docker compose -f compose.yml up -d --build
 ```
 
-The `bin/docker-entrypoint` runs `db:prepare` (create + migrate + seed) automatically on first start.
+The `bin/docker-entrypoint` runs `db:prepare` (create + migrate + seed)
+automatically on first start.
 
 ### Check status
 

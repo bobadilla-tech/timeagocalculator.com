@@ -30,8 +30,6 @@ This starts:
 
 Procfile is at `apps/web/Procfile.dev`.
 
-
-
 ## Project Structure
 
 ```
@@ -169,15 +167,20 @@ Rails on `http://localhost:3000`, Postgres on `5432`, Redis on `6379`.
 
 ## Auth
 
-Email + password auth via Rails 8 `Authentication` concern. Sign up at `/sign-up`, sign in at `/session/new`.
+Email + password auth via Rails 8 `Authentication` concern. Sign up at
+`/sign-up`, sign in at `/session/new`.
 
 - `Current.user` — logged-in user, available everywhere (nil if anonymous)
 - `authenticated?` helper — checks session cookie
-- All pages are public by default (`allow_unauthenticated_access` in `ApplicationController`)
+- All pages are public by default (`allow_unauthenticated_access` in
+  `ApplicationController`)
 
-**Password reset:** Implemented via `PasswordsController` + `PasswordsMailer`. Requires ActionMailer configured for your environment (SMTP or a provider).
+**Password reset:** Implemented via `PasswordsController` + `PasswordsMailer`.
+Requires ActionMailer configured for your environment (SMTP or a provider).
 
-**OmniAuth:** Gems installed, `Identity` model + migration ready. Add a provider gem + configure in `config/initializers/omniauth.rb`. See comments there for wiring instructions.
+**OmniAuth:** Gems installed, `Identity` model + migration ready. Add a provider
+gem + configure in `config/initializers/omniauth.rb`. See comments there for
+wiring instructions.
 
 **Creating a test user in console:**
 
