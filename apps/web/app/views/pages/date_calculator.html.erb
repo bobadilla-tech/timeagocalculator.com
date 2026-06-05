@@ -1,0 +1,75 @@
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">Date Calculator</h1>
+  <p class="text-slate-500 mb-6">Add or subtract time from any date to find future or past dates</p>
+
+  <div class="bg-white rounded-lg border shadow-sm p-6 mb-6">
+    <h2 class="bg-blue-600 text-white px-4 py-2 rounded-t-lg -mx-6 -mt-6">Calculate a New Date</h2>
+
+    <form data-controller="date-calculator" data-date-calculator-target="form" class="mt-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Start Date *</label>
+          <input type="date" data-date-calculator-target="date" class="mt-1 block w-full border rounded px-3 py-2" value="<%= Date.current.strftime('%Y-%m-%d') %>">
+          <p class="text-xs text-slate-500 mt-1">The date to calculate from</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Operation *</label>
+          <select data-date-calculator-target="operation" class="mt-1 block w-full border rounded px-3 py-2">
+            <option value="add">+ Add</option>
+            <option value="subtract">- Subtract</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Amount *</label>
+          <input type="number" min="0" value="30" data-date-calculator-target="amount" class="mt-1 block w-full border rounded px-3 py-2">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700">Time Unit *</label>
+          <select data-date-calculator-target="unit" class="mt-1 block w-full border rounded px-3 py-2">
+            <option value="days">Days</option>
+            <option value="weeks">Weeks</option>
+            <option value="months">Months</option>
+            <option value="years">Years</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-4 bg-sky-50 border-l-4 border-sky-200 p-3 text-sm text-slate-700">Example: Add 30 days to <span data-date-calculator-target="example"><%= Date.current.strftime('%B %-d, %Y') %></span></div>
+
+      <div class="mt-4">
+        <button type="button" data-action="click->date-calculator#calculate" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded">Calculate Date</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="bg-white border rounded p-4 mb-6">
+    <h3 class="font-semibold mb-3">Popular Date Calculations</h3>
+    <div class="grid grid-cols-4 gap-2">
+      <% [7,14,30,45,60,90,180,365].each do |d| %>
+        <button type="button" data-action="click->date-calculator#preset" data-value="<%= d %>" class="border rounded py-2 text-sm"> <%= d %> Days From Now</button>
+      <% end %>
+    </div>
+
+    <h4 class="mt-4 font-medium">Days Ago</h4>
+    <div class="grid grid-cols-4 gap-2 mt-2">
+      <% [30,60,90,180].each do |d| %>
+        <button type="button" data-action="click->date-calculator#presetAgo" data-value="<%= d %>" class="border rounded py-2 text-sm"> <%= d %> Days Ago</button>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="bg-white border rounded p-4">
+    <h3 class="font-semibold mb-2">How It Works</h3>
+    <ul class="list-disc pl-5 text-sm text-slate-700">
+      <li><strong>Add time:</strong> Calculate future dates by adding days, weeks, months, or years</li>
+      <li><strong>Subtract time:</strong> Calculate past dates by subtracting time periods</li>
+      <li><strong>Smart calculations:</strong> Handles month-end dates (e.g., Jan 31 + 1 month => Feb 28/29)</li>
+      <li><strong>Detailed results:</strong> Shows the resulting date and a human-friendly summary</li>
+    </ul>
+  </div>
+
+  <div id="date-calculator-result" class="mt-6"></div>
+</div>
