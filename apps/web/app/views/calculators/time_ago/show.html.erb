@@ -22,28 +22,85 @@
   <% end %>
 
   <% if @result %>
-    <%= render "shared/result_card" do %>
-      <p class="text-lg font-semibold text-slate-700 mb-6">
-        <%= @input_date.strftime("%B %-d, %Y") %> was
-        <span class="text-blue-600"><%= @result.human %></span>.
-      </p>
-
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-        <% [
-          [ @result.years,      "Years"   ],
-          [ @result.months,     "Months"  ],
-          [ @result.days,       "Days"    ],
-          [ @result.total_days, "Total Days" ],
-          [ @result.hours,      "Hours"   ],
-          [ @result.minutes,    "Minutes" ]
-        ].each do |value, label| %>
-          <div class="text-center bg-slate-50 rounded-xl p-4">
-            <div class="text-2xl font-bold text-blue-700"><%= number_with_delimiter(value) %></div>
-            <div class="text-xs text-slate-500 mt-1"><%= label %></div>
-          </div>
-        <% end %>
+    <%# ── Countdown-style totals ── %>
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mt-8">
+      <h2 class="text-lg font-bold text-slate-800 mb-5">
+        How Long Ago Was <%= @input_date.strftime("%B %-d, %Y") %>?
+      </h2>
+      <div class="grid grid-cols-4 gap-3"
+           data-controller="time-since"
+           data-time-since-base-value="<%= @total_seconds %>"
+           data-time-since-rendered-at-value="<%= @rendered_at_ms %>">
+        <div class="text-center bg-blue-50 rounded-xl p-4">
+          <div class="text-3xl font-bold text-blue-700"><%= number_with_delimiter(@result.total_days) %></div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">Days</div>
+        </div>
+        <div class="text-center bg-blue-50 rounded-xl p-4">
+          <div class="text-3xl font-bold text-blue-700"><%= number_with_delimiter(@result.hours) %></div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">Hrs</div>
+        </div>
+        <div class="text-center bg-blue-50 rounded-xl p-4">
+          <div class="text-3xl font-bold text-blue-700"><%= number_with_delimiter(@result.minutes) %></div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">Min</div>
+        </div>
+        <div class="text-center bg-blue-50 rounded-xl p-4">
+          <div class="text-3xl font-bold text-blue-700" data-time-since-target="seconds"><%= number_with_delimiter(@total_seconds) %></div>
+          <div class="text-xs text-slate-500 mt-1 font-medium">Sec</div>
+        </div>
       </div>
-    <% end %>
+    </div>
+
+    <%# ── Q&A breakdown ── %>
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm mt-4 divide-y divide-slate-100">
+      <%
+        formatted_date  = @input_date.strftime("%B #{@input_date.day.ordinalize}, %Y")
+        day_of_week     = @input_date.strftime("%A")
+        day_of_year     = @input_date.yday
+        week_number     = @input_date.cweek
+        quarter         = ((@input_date.month - 1) / 3) + 1
+        leap            = @input_date.leap?
+        days_in_month   = Date.new(@input_date.year, @input_date.month, -1).day
+        month_name      = @input_date.strftime("%B")
+      %>
+
+      <%# Prose row %>
+      <div class="p-5">
+        <h3 class="font-semibold text-slate-800 mb-2">How long ago was <%= formatted_date %>?</h3>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          <%= formatted_date %> was <strong><%= @result.human %></strong>.
+          It was on a <%= day_of_week %> — the <%= day_of_year.ordinalize %> day of <%= @input_date.year %>,
+          falling in week <%= week_number %>, Q<%= quarter %>.
+          <%= @input_date.year %> is <%= leap ? "a leap year (366 days)" : "not a leap year (365 days)" %>
+          and there are <%= days_in_month %> days in <%= month_name %>.
+          <%= link_to "Create a countdown for #{@input_date.strftime("%B %-d, %Y")} →", new_countdown_path,
+              class: "text-blue-600 hover:underline" %>
+        </p>
+      </div>
+
+      <%# Q&A rows %>
+      <% [
+        [ "How many months ago was #{formatted_date}?",  @total_months                              ],
+        [ "How many weeks ago was #{formatted_date}?",   @total_weeks                               ],
+        [ "How many days ago was #{formatted_date}?",    @result.total_days                         ],
+        [ "How many hours ago was #{formatted_date}?",   @result.hours                              ],
+        [ "How many minutes ago was #{formatted_date}?", @result.minutes                            ],
+        [ "How many seconds ago was #{formatted_date}?", nil                                        ],
+      ].each do |question, answer| %>
+        <div class="flex items-center justify-between px-5 py-3.5">
+          <span class="text-sm text-slate-700"><%= question %></span>
+          <% if answer.nil? %>
+            <span class="text-base font-bold text-blue-700"
+                  data-controller="time-since"
+                  data-time-since-base-value="<%= @total_seconds %>"
+                  data-time-since-rendered-at-value="<%= @rendered_at_ms %>">
+              <span data-time-since-target="seconds"><%= number_with_delimiter(@total_seconds) %></span>
+            </span>
+          <% else %>
+            <span class="text-base font-bold text-blue-700"><%= number_with_delimiter(answer) %></span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
   <% end %>
 
   <div class="mt-12 prose prose-slate max-w-none">

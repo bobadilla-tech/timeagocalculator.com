@@ -28,6 +28,10 @@ module Calculators
       else
         @result = DateCalculations::TimeAgoCalculator.new(reference_date: date).call
         @input_date = date
+        @total_seconds = (Time.current - date.to_time).to_i
+        @total_weeks   = @result.total_days / 7
+        @total_months  = @result.years * 12 + @result.months
+        @rendered_at_ms = (Time.current.to_f * 1000).to_i
         set_meta_tags(
           title: "How Long Ago Was #{date.strftime("%B %-d, %Y")}?",
           description: "#{date.strftime("%B %-d, %Y")} was #{@result.human}. Full breakdown in years, months, days, hours and minutes."
