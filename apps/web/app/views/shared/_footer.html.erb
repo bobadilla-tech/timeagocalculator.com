@@ -14,14 +14,14 @@
           <li><%= link_to "Recurring Date Finder", recurring_date_finder_path, class: footer_link_class %></li>
           <li><%= link_to "Event Countdowns", events_path, class: footer_link_class %></li>
           <li><%= link_to "Create Countdown", new_countdown_path, class: footer_link_class %></li>
-        <%= link_to "Buy Me a Coffee", "https://www.buymeacoffee.com/", class: footer_link_class, target: "_blank", rel: "noopener" %>
+          <li><%= link_to "Create Widget", countdown_widget_builder_path, class: footer_link_class %></li>
         </ul>
       </section>
 
       <section>
         <h2 class="text-white text-lg font-bold mb-4">Calculators</h2>
-            <li><%= link_to "Facebook", "https://facebook.com/", class: footer_link_class, target: "_blank", rel: "noopener" %></li>
-            <li><%= link_to "Twitter", "https://twitter.com/", class: footer_link_class, target: "_blank", rel: "noopener" %></li>
+        <ul class="space-y-2">
+          <li><%= link_to "Age Calculator", age_calculator_path, class: footer_link_class %></li>
           <li><%= link_to "Business Days", business_days_calculator_path, class: footer_link_class %></li>
           <li><%= link_to "Week Number", week_number_path, class: footer_link_class %></li>
           <li><%= link_to "Anniversary Calculator", anniversary_calculator_path, class: footer_link_class %></li>
@@ -56,8 +56,8 @@
         <div>
           <h2 class="text-white text-lg font-bold mb-4">Follow Us</h2>
           <ul class="space-y-2">
-            <li><%= link_to "Facebook", "https://facebook.com/", class: footer_placeholder_class, target: "_blank", rel: "noopener" %></li>
-            <li><%= link_to "Twitter", "https://twitter.com/", class: footer_placeholder_class, target: "_blank", rel: "noopener" %></li>
+            <li><%= link_to "Instagram", "https://www.instagram.com/bobadilla.tech/", class: footer_placeholder_class, target: "_blank", rel: "noopener" %></li>
+            <li><%= link_to "LinkedIn", "https://www.linkedin.com/company/bobadilla-tech", class: footer_placeholder_class, target: "_blank", rel: "noopener" %></li>
           </ul>
         </div>
       </section>

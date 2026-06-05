@@ -1,111 +1,26 @@
 <%= render "shared/structured_data", schema: @schema %>
 
 <div class="max-w-2xl mx-auto">
-  <h1 class="text-3xl font-bold text-slate-900 mb-2">Time Ago Calculator</h1>
-  <p class="text-slate-500 mb-8">Find out how long ago any date was in years, months, and days.</p>
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">Date Calculator</h1>
+  <p class="text-slate-500 mb-8">Enter any date — past or future — to see exactly how long ago it was or how long until it arrives.</p>
 
-  <%= form_with url: time_ago_calculator_path, method: :get, data: { controller: "time-ago" } do |f| %>
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-      <label class="block text-sm font-medium text-slate-700 mb-2">Select a date</label>
-      <%= f.date_field :date,
-            value: params[:date],
-            max: Date.today,
-            class: "w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500",
-            data: { action: "change->time-ago#preview", "time-ago-target": "dateInput" } %>
-
-      <% if @error %>
-        <p class="mt-3 text-sm text-red-600"><%= @error %></p>
-      <% end %>
-
-      <%= f.submit "Calculate", class: "mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg cursor-pointer transition-colors" %>
-    </div>
-  <% end %>
-
-  <% if @result %>
-    <%# ── Countdown-style totals ── %>
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mt-8">
-      <h2 class="text-lg font-bold text-slate-800 mb-5">
-        How Long Ago Was <%= @input_date.strftime("%B %-d, %Y") %>?
-      </h2>
-      <div class="grid grid-cols-4 gap-3"
-           data-controller="time-since"
-           data-time-since-base-value="<%= @total_seconds %>"
-           data-time-since-rendered-at-value="<%= @rendered_at_ms %>">
-        <div class="text-center bg-blue-50 rounded-xl p-4">
-          <div class="text-3xl font-bold text-blue-700"><%= number_with_delimiter(@result.total_days) %></div>
-          <div class="text-xs text-slate-500 mt-1 font-medium">Days</div>
-        </div>
-        <div class="text-center bg-blue-50 rounded-xl p-4">
-          <div class="text-3xl font-bold text-blue-700"><%= number_with_delimiter(@result.hours) %></div>
-          <div class="text-xs text-slate-500 mt-1 font-medium">Hrs</div>
-        </div>
-        <div class="text-center bg-blue-50 rounded-xl p-4">
-          <div class="text-3xl font-bold text-blue-700"><%= number_with_delimiter(@result.minutes) %></div>
-          <div class="text-xs text-slate-500 mt-1 font-medium">Min</div>
-        </div>
-        <div class="text-center bg-blue-50 rounded-xl p-4">
-          <div class="text-3xl font-bold text-blue-700" data-time-since-target="seconds"><%= number_with_delimiter(@total_seconds) %></div>
-          <div class="text-xs text-slate-500 mt-1 font-medium">Sec</div>
-        </div>
-      </div>
-    </div>
-
-    <%# ── Q&A breakdown ── %>
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm mt-4 divide-y divide-slate-100">
-      <%
-        formatted_date  = @input_date.strftime("%B #{@input_date.day.ordinalize}, %Y")
-        day_of_week     = @input_date.strftime("%A")
-        day_of_year     = @input_date.yday
-        week_number     = @input_date.cweek
-        quarter         = ((@input_date.month - 1) / 3) + 1
-        leap            = @input_date.leap?
-        days_in_month   = Date.new(@input_date.year, @input_date.month, -1).day
-        month_name      = @input_date.strftime("%B")
-      %>
-
-      <%# Prose row %>
-      <div class="p-5">
-        <h3 class="font-semibold text-slate-800 mb-2">How long ago was <%= formatted_date %>?</h3>
-        <p class="text-slate-600 text-sm leading-relaxed">
-          <%= formatted_date %> was <strong><%= @result.human %></strong>.
-          It was on a <%= day_of_week %> — the <%= day_of_year.ordinalize %> day of <%= @input_date.year %>,
-          falling in week <%= week_number %>, Q<%= quarter %>.
-          <%= @input_date.year %> is <%= leap ? "a leap year (366 days)" : "not a leap year (365 days)" %>
-          and there are <%= days_in_month %> days in <%= month_name %>.
-          <%= link_to "Create a countdown for #{@input_date.strftime("%B %-d, %Y")} →", new_countdown_path,
-              class: "text-blue-600 hover:underline" %>
-        </p>
-      </div>
-
-      <%# Q&A rows %>
-      <% [
-        [ "How many months ago was #{formatted_date}?",  @total_months                              ],
-        [ "How many weeks ago was #{formatted_date}?",   @total_weeks                               ],
-        [ "How many days ago was #{formatted_date}?",    @result.total_days                         ],
-        [ "How many hours ago was #{formatted_date}?",   @result.hours                              ],
-        [ "How many minutes ago was #{formatted_date}?", @result.minutes                            ],
-        [ "How many seconds ago was #{formatted_date}?", nil                                        ],
-      ].each do |question, answer| %>
-        <div class="flex items-center justify-between px-5 py-3.5">
-          <span class="text-sm text-slate-700"><%= question %></span>
-          <% if answer.nil? %>
-            <span class="text-base font-bold text-blue-700"
-                  data-controller="time-since"
-                  data-time-since-base-value="<%= @total_seconds %>"
-                  data-time-since-rendered-at-value="<%= @rendered_at_ms %>">
-              <span data-time-since-target="seconds"><%= number_with_delimiter(@total_seconds) %></span>
-            </span>
-          <% else %>
-            <span class="text-base font-bold text-blue-700"><%= number_with_delimiter(answer) %></span>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6"
+       data-controller="date-redirect">
+    <label class="block text-sm font-medium text-slate-700 mb-2">Select any date</label>
+    <input type="date" data-date-redirect-target="date"
+           class="w-full border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">
+    <% if @error %>
+      <p class="mb-3 text-sm text-red-600"><%= @error %></p>
+    <% end %>
+    <button type="button" data-action="click->date-redirect#go"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg cursor-pointer transition-colors">
+      Calculate
+    </button>
+  </div>
 
   <div class="mt-12 prose prose-slate max-w-none">
     <h2 class="text-xl font-semibold text-slate-800">How to use</h2>
-    <p class="text-slate-600 mt-2">Select any past date and click Calculate. You'll get the exact difference in years, months, days, hours, and minutes from that date to today.</p>
+    <p class="text-slate-600 mt-2">Select any date — past or future — and click Calculate. You'll get an exact breakdown in days, hours, minutes and seconds, plus every common date format.</p>
 
     <h2 class="text-xl font-semibold text-slate-800 mt-6">Popular historical events</h2>
     <div class="flex flex-wrap gap-3 mt-3">

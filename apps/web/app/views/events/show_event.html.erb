@@ -133,6 +133,8 @@
     </div>
   <% end %>
 
+  <%= render "shared/date_formats", date: @event.starts_at.to_date %>
+
   <div class="mt-8 flex gap-4">
     <%= link_to "← All events", events_path, class: "text-blue-600 hover:underline font-medium" %>
     <% if @event.upcoming? %>

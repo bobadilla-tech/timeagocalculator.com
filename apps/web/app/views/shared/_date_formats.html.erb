@@ -1,0 +1,20 @@
+<%# locals: (date:) %>
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mt-6">
+  <h2 class="text-base font-bold text-slate-800 mb-4">
+    Date Formats for <%= date.strftime("%B %-d, %Y") %>
+  </h2>
+  <div class="divide-y divide-slate-100">
+    <% [
+      [ "United States",  "#{date.strftime("%-m/%-d/%Y")} or #{date.strftime("%B %-d, %Y")}" ],
+      [ "UK / Europe",    "#{date.strftime("%-d/%-m/%Y")} or #{date.strftime("%-d %B %Y")}" ],
+      [ "ISO 8601",       date.strftime("%Y-%m-%d") ],
+      [ "Abbreviated",    "#{date.strftime("%b %-d, %Y")} or #{date.strftime("%-d %b %Y")}" ],
+      [ "Full Format",    date.strftime("%A, %B #{date.day.ordinalize}, %Y") ],
+    ].each do |label, value| %>
+      <div class="flex items-center justify-between py-2.5 gap-4">
+        <span class="text-sm text-slate-500 shrink-0"><%= label %></span>
+        <span class="text-sm font-medium text-slate-800 text-right"><%= value %></span>
+      </div>
+    <% end %>
+  </div>
+</div>

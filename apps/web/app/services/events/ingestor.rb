@@ -62,6 +62,7 @@ module Events
         years_ahead:  @mode == :full ? FULL_YEARS_AHEAD  : REFRESH_YEARS_AHEAD,
         years_behind: @mode == :full ? FULL_YEARS_BEHIND : REFRESH_YEARS_BEHIND
       ))
+      records.concat(Sources::Leaders.fetch)
       records.concat(Sources::NagerDate.fetch(years: years_array))
       records.concat(Sources::OpenHolidays.fetch(years: years_array))
       records.concat(Sources::Calendarific.fetch(years: years_array))

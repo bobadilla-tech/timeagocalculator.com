@@ -19,6 +19,24 @@ namespace :events do
     puts "Deleted #{count} API-sourced events."
   end
 
+  desc "Seed leaders (US Presidents, UK PMs, UK Monarchs) from data/seeds/leaders.json"
+  task seed_leaders: :environment do
+    records = Events::Sources::Leaders.fetch
+    now = Time.current
+    data = records.map { |r| r.merge(created_at: now, updated_at: now) }
+    count = 0
+    data.each_slice(50) do |batch|
+      result = Event.upsert_all(
+        batch,
+        unique_by:   :slug,
+        update_only: %i[title description body starts_at ends_at category
+                        country_codes recurrence published source external_id]
+      )
+      count += result.length
+    end
+    puts "Seeded #{count} leader records."
+  end
+
   desc "Backfill Wikipedia images for events missing image_url"
   task backfill_images: :environment do
     events = Event.where(image_url: nil).where.not(source: nil)

@@ -2,41 +2,28 @@ module Calculators
   class TimeAgoController < BaseController
     def show
       set_meta_tags(
-        title: "Time Ago Calculator — How Long Ago Was a Date?",
-        description: "Calculate how many years, months, days, hours and minutes ago any date was. Get an instant human-readable result.",
+        title: "Date Calculator — How Long Ago or Until Any Date",
+        description: "Enter any date — past or future — and find out exactly how long ago it was or how long until it arrives.",
         canonical: time_ago_calculator_url
       )
 
       @schema = Seo::StructuredDataBuilder.web_application(
-        name: "Time Ago Calculator",
+        name: "Date Calculator",
         url: time_ago_calculator_url,
-        description: "Calculate how long ago any date was in years, months, and days."
+        description: "Calculate how long ago any date was or how long until a future date."
       )
 
       @featured_events = Event.published.past.sorted_past.limit(8)
 
-      @result = nil
-      @error  = nil
-
       return unless params[:date].present?
 
       date = parse_date(:date)
-      if date.nil?
+      unless date
         @error = "Please enter a valid date."
-      elsif date > Date.today
-        @error = "That date is in the future. Try the Time Until Calculator."
-      else
-        @result = DateCalculations::TimeAgoCalculator.new(reference_date: date).call
-        @input_date = date
-        @total_seconds = (Time.current - date.to_time).to_i
-        @total_weeks   = @result.total_days / 7
-        @total_months  = @result.years * 12 + @result.months
-        @rendered_at_ms = (Time.current.to_f * 1000).to_i
-        set_meta_tags(
-          title: "How Long Ago Was #{date.strftime("%B %-d, %Y")}?",
-          description: "#{date.strftime("%B %-d, %Y")} was #{@result.human}. Full breakdown in years, months, days, hours and minutes."
-        )
+        return
       end
+
+      redirect_to date_page_path(date.year, date.strftime("%B").downcase, date.day)
     end
   end
 end

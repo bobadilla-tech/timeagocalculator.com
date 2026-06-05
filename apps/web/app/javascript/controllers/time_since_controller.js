@@ -17,7 +17,7 @@ export default class extends Controller {
     const elapsed = Math.floor((Date.now() - this.renderedAtValue) / 1000)
     const total = this.baseValue + elapsed
     if (this.hasSecondsTarget) {
-      this.secondsTarget.textContent = total.toLocaleString()
+      this.secondsTarget.textContent = String(total % 60).padStart(2, "0")
     }
   }
 }

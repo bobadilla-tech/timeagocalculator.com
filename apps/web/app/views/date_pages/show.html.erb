@@ -1,0 +1,207 @@
+<div class="max-w-2xl mx-auto">
+  <nav class="text-sm text-slate-400 mb-6">
+    <%= link_to "Home", root_path, class: "hover:text-blue-600" %> /
+    <%= link_to "Date Calculator", time_ago_calculator_path, class: "hover:text-blue-600" %> /
+    <span class="text-slate-600"><%= @input_date.strftime("%B %-d, %Y") %></span>
+  </nav>
+
+  <%
+    formatted_date = @input_date.strftime("%B #{@input_date.day.ordinalize}, %Y")
+    q_suffix       = @is_future ? "until #{formatted_date}" : "ago was #{formatted_date}"
+    day_of_week    = @input_date.strftime("%A")
+    day_of_year    = @input_date.yday
+    week_number    = @input_date.cweek
+    quarter        = ((@input_date.month - 1) / 3) + 1
+    leap           = @input_date.leap?
+    days_in_month  = Date.new(@input_date.year, @input_date.month, -1).day
+    month_name     = @input_date.strftime("%B")
+  %>
+
+  <%# ── Dark countdown / countup section ── %>
+  <% if @is_future %>
+    <div class="bg-[#1b2d5e] rounded-2xl p-8 text-center"
+         data-controller="countdown"
+         data-countdown-target-timestamp-value="<%= @target_ms %>">
+      <h1 class="text-white text-2xl sm:text-3xl font-bold mb-8 leading-tight">
+        How Long Until <%= @input_date.strftime("%B %-d, %Y") %>?
+      </h1>
+      <div class="grid grid-cols-4 gap-3 max-w-sm mx-auto">
+        <div class="bg-white/10 rounded-xl p-4">
+          <div class="text-4xl sm:text-5xl font-black text-white tabular-nums" data-countdown-target="days">0</div>
+          <div class="text-xs text-blue-200 font-bold uppercase tracking-wider mt-2">Days</div>
+        </div>
+        <div class="bg-white/10 rounded-xl p-4">
+          <div class="text-4xl sm:text-5xl font-black text-white tabular-nums" data-countdown-target="hours">00</div>
+          <div class="text-xs text-blue-200 font-bold uppercase tracking-wider mt-2">Hrs</div>
+        </div>
+        <div class="bg-white/10 rounded-xl p-4">
+          <div class="text-4xl sm:text-5xl font-black text-white tabular-nums" data-countdown-target="minutes">00</div>
+          <div class="text-xs text-blue-200 font-bold uppercase tracking-wider mt-2">Min</div>
+        </div>
+        <div class="bg-white/10 rounded-xl p-4">
+          <div class="text-4xl sm:text-5xl font-black text-white tabular-nums" data-countdown-target="seconds">00</div>
+          <div class="text-xs text-blue-200 font-bold uppercase tracking-wider mt-2">Sec</div>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="bg-[#1b2d5e] rounded-2xl p-8 text-center"
+         data-controller="time-since"
+         data-time-since-base-value="<%= @total_seconds %>"
+         data-time-since-rendered-at-value="<%= @rendered_at_ms %>">
+      <h1 class="text-white text-2xl sm:text-3xl font-bold mb-8 leading-tight">
+        How Long Ago Was <%= @input_date.strftime("%B %-d, %Y") %>?
+      </h1>
+      <div class="grid grid-cols-4 gap-3 max-w-sm mx-auto">
+        <div class="bg-white/10 rounded-xl p-4">
+          <div class="text-4xl sm:text-5xl font-black text-white tabular-nums"><%= @result.total_days %></div>
+          <div class="text-xs text-blue-200 font-bold uppercase tracking-wider mt-2">Days</div>
+        </div>
+        <div class="bg-white/10 rounded-xl p-4">
+          <div class="text-4xl sm:text-5xl font-black text-white tabular-nums"><%= @comp_hours %></div>
+          <div class="text-xs text-blue-200 font-bold uppercase tracking-wider mt-2">Hrs</div>
+        </div>
+        <div class="bg-white/10 rounded-xl p-4">
+          <div class="text-4xl sm:text-5xl font-black text-white tabular-nums"><%= @comp_minutes %></div>
+          <div class="text-xs text-blue-200 font-bold uppercase tracking-wider mt-2">Min</div>
+        </div>
+        <div class="bg-white/10 rounded-xl p-4">
+          <div class="text-4xl sm:text-5xl font-black text-white tabular-nums" data-time-since-target="seconds">00</div>
+          <div class="text-xs text-blue-200 font-bold uppercase tracking-wider mt-2">Sec</div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Prose description ── %>
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mt-4">
+    <h2 class="font-semibold text-slate-800 mb-2">
+      How long <%= @is_future ? "until" : "ago was" %> <%= formatted_date %>?
+    </h2>
+    <p class="text-slate-600 text-sm leading-relaxed">
+      <% if @is_future %>
+        <%= formatted_date %> is
+        <strong><%= @total_days == 0 ? "today" : "#{number_with_delimiter(@total_days)} #{@total_days == 1 ? "day" : "days"} away" %></strong>.
+        It will be on a <%= day_of_week %> — the <%= day_of_year.ordinalize %> day of <%= @input_date.year %>,
+        falling in week <%= week_number %>, Q<%= quarter %>.
+      <% else %>
+        <%= formatted_date %> was <strong><%= @result.human %></strong>.
+        It was on a <%= day_of_week %> — the <%= day_of_year.ordinalize %> day of <%= @input_date.year %>,
+        falling in week <%= week_number %>, Q<%= quarter %>.
+      <% end %>
+      <%= @input_date.year %> is <%= leap ? "a leap year (366 days)" : "not a leap year (365 days)" %>
+      and there are <%= days_in_month %> days in <%= month_name %>.
+      <%= link_to "Create a countdown for #{@input_date.strftime("%B %-d, %Y")} →", new_countdown_path,
+          class: "text-blue-600 hover:underline" %>
+    </p>
+  </div>
+
+  <%# ── 2-column Q&A grid ── %>
+  <% if @is_future %>
+    <% qa_pairs = [
+      [ "How many months #{q_suffix}?",  @total_months  ],
+      [ "How many weeks #{q_suffix}?",   @total_weeks   ],
+      [ "How many days #{q_suffix}?",    @total_days    ],
+      [ "How many hours #{q_suffix}?",   @total_hours   ],
+      [ "How many minutes #{q_suffix}?", @total_minutes ],
+      [ "How many seconds #{q_suffix}?", @total_seconds ],
+    ] %>
+  <% else %>
+    <% qa_pairs = [
+      [ "How many months #{q_suffix}?",  @total_months       ],
+      [ "How many weeks #{q_suffix}?",   @total_weeks        ],
+      [ "How many days #{q_suffix}?",    @result.total_days  ],
+      [ "How many hours #{q_suffix}?",   @result.hours       ],
+      [ "How many minutes #{q_suffix}?", @result.minutes     ],
+      [ "How many seconds #{q_suffix}?", @total_seconds      ],
+    ] %>
+  <% end %>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+    <% qa_pairs.each do |question, answer| %>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 text-center">
+        <p class="text-xs text-slate-500 font-medium mb-3 leading-snug"><%= question %></p>
+        <p class="text-3xl font-black text-blue-600"><%= number_with_delimiter(answer) %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <%# ── Date formats ── %>
+  <%= render "shared/date_formats", date: @input_date %>
+
+  <%# ── FAQ ── %>
+  <%
+    faq_items = []
+
+    faq_items << {
+      q: "What day of the week was #{formatted_date}?",
+      a: "#{formatted_date} fell on a #{day_of_week}, the #{day_of_year.ordinalize} day of #{@input_date.year}."
+    }
+
+    unless @is_future
+      faq_items << {
+        q: "How old would I be if I was born on #{formatted_date}?",
+        a: "If born on #{formatted_date}, you would be #{@age_if_born} years old today (#{Date.today.strftime("%B %-d, %Y")})."
+      }
+    end
+
+    faq_items << {
+      q: "How can I write #{formatted_date} in different date formats?",
+      a: "#{formatted_date} can be written as: US format #{@input_date.strftime("%-m/%-d/%Y")}, " \
+         "UK format #{@input_date.strftime("%-d/%-m/%Y")}, " \
+         "ISO 8601 #{@input_date.strftime("%Y-%m-%d")}, " \
+         "abbreviated #{@input_date.strftime("%b %-d, %Y")}, " \
+         "or in full: #{@input_date.strftime("%A, %B")} #{@input_date.day.ordinalize}, #{@input_date.year}."
+    }
+
+    if @events_on_date.any?
+      faq_items << {
+        q: "What happened on #{formatted_date}?",
+        a: @events_on_date.map(&:title).join("; ") + "."
+      }
+    end
+
+    if @leaders_on_date.any?
+      leader_sentences = @leaders_on_date.map do |l|
+        party = l.body.present? ? ", representing the #{l.body}" : ""
+        "#{l.title} was the #{l.description} on #{formatted_date}#{party}"
+      end
+      faq_items << {
+        q: "Who was in power on #{formatted_date}?",
+        a: leader_sentences.join(". ") + "."
+      }
+    end
+  %>
+
+  <div class="mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <h2 class="px-6 py-4 font-bold text-slate-800 border-b border-slate-100">Frequently Asked Questions</h2>
+    <div class="divide-y divide-slate-100">
+      <% faq_items.each do |item| %>
+        <div class="px-6 py-4">
+          <p class="font-semibold text-slate-800 text-sm mb-1"><%= item[:q] %></p>
+          <p class="text-slate-600 text-sm leading-relaxed"><%= item[:a] %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <% faq_schema = {
+    "@context" => "https://schema.org",
+    "@type"    => "FAQPage",
+    "mainEntity" => faq_items.map { |item|
+      {
+        "@type" => "Question",
+        "name"  => item[:q],
+        "acceptedAnswer" => { "@type" => "Answer", "text" => item[:a] }
+      }
+    }
+  } %>
+  <script type="application/ld+json">
+  <%= raw faq_schema.to_json %>
+  </script>
+
+  <div class="mt-8 flex gap-4">
+    <%= link_to "← Calculate another date", time_ago_calculator_path, class: "text-blue-600 hover:underline font-medium text-sm" %>
+    <%= link_to "Create countdown →", new_countdown_path, class: "text-slate-500 hover:text-blue-600 font-medium text-sm" %>
+  </div>
+</div>
