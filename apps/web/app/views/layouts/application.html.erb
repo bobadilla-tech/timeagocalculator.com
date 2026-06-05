@@ -37,35 +37,124 @@
       </div>
     <% end %>
 
-    <header class="bg-white border-b border-slate-200 shadow-sm">
-      <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-        <%= link_to root_path, class: "text-xl font-bold text-blue-600 hover:text-blue-700" do %>
-          Time Ago Calculator
-        <% end %>
-        <nav class="hidden sm:flex items-center gap-6 text-sm text-slate-600">
-          <%= link_to "Time Ago",       time_ago_calculator_path,          class: "hover:text-blue-600" %>
-          <%= link_to "Time Until",     time_until_calculator_path,        class: "hover:text-blue-600" %>
-          <%= link_to "Date Diff",      date_difference_calculator_path,   class: "hover:text-blue-600" %>
-          <%= link_to "Age",            age_calculator_path,               class: "hover:text-blue-600" %>
-          <%= link_to "Business Days",  business_days_calculator_path,     class: "hover:text-blue-600" %>
-          <%= link_to "Widget Builder", countdown_widget_builder_path,   class: "hover:text-blue-600" %>
-          <%= link_to "Create Countdown", new_countdown_path,            class: "bg-slate-900 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg font-medium" %>
-          <span class="text-slate-300">|</span>
-          <% if Current.user %>
-            <%= link_to "Dashboard", dashboard_path, class: "hover:text-blue-600" %>
-            <span class="text-slate-300">·</span>
-            <span class="text-slate-500"><%= Current.user.email_address %></span>
-            <%= button_to "Sign out", session_path, method: :delete,
-                  class: "text-slate-600 hover:text-red-600 cursor-pointer bg-transparent border-0 p-0 font-inherit text-sm" %>
-          <% else %>
-            <%= link_to "Sign in",    new_session_path,      class: "hover:text-blue-600" %>
-            <%= link_to "Sign up",    new_registration_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium" %>
+    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4" data-controller="navbar">
+        <div class="flex items-center justify-between h-14">
+
+          <%# Brand %>
+          <%= link_to root_path, class: "font-bold text-blue-600 hover:text-blue-700 text-lg shrink-0 mr-4" do %>
+            Time Ago Calculator
           <% end %>
-        </nav>
+
+          <%# Desktop nav %>
+          <nav class="hidden lg:flex items-center gap-0.5 text-sm text-slate-600 flex-1">
+
+            <%# Date Tools dropdown %>
+            <div class="relative group">
+              <button class="flex items-center gap-1 px-3 py-2 hover:text-blue-600 rounded-lg hover:bg-slate-50 font-medium">
+                Date Tools
+                <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              <div class="absolute hidden group-hover:block top-full left-0 pt-1 z-50">
+                <div class="w-64 bg-white rounded-xl shadow-xl border border-slate-100 py-2">
+                  <%= link_to "How Long Ago / Until Calculator", time_ago_calculator_path,
+                      class: "block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600" %>
+                  <%= link_to "Days Between Calculator",         date_difference_calculator_path,
+                      class: "block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600" %>
+                  <%= link_to "Date Calculator",                 date_calculator_path,
+                      class: "block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600" %>
+                  <%= link_to "Day of The Week Calculator",      day_of_the_week_path,
+                      class: "block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600" %>
+                  <%= link_to "Recurring Date Finder",           recurring_date_finder_path,
+                      class: "block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600" %>
+                </div>
+              </div>
+            </div>
+
+            <%# Calculators dropdown %>
+            <div class="relative group">
+              <button class="flex items-center gap-1 px-3 py-2 hover:text-blue-600 rounded-lg hover:bg-slate-50 font-medium">
+                Calculators
+                <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              <div class="absolute hidden group-hover:block top-full left-0 pt-1 z-50">
+                <div class="w-60 bg-white rounded-xl shadow-xl border border-slate-100 py-2">
+                  <%= link_to "Age Calculator",           age_calculator_path,
+                      class: "block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600" %>
+                  <%= link_to "Business Days Calculator", business_days_calculator_path,
+                      class: "block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600" %>
+                  <%= link_to "Week Number Calculator",   week_number_path,
+                      class: "block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600" %>
+                  <%= link_to "Anniversary Calculator",   anniversary_calculator_path,
+                      class: "block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600" %>
+                </div>
+              </div>
+            </div>
+
+            <%= link_to "Create Countdown", new_countdown_path,
+                class: "px-3 py-2 font-medium hover:text-blue-600 rounded-lg hover:bg-slate-50" %>
+            <%= link_to "Create Widget", countdown_widget_builder_path,
+                class: "px-3 py-2 font-medium hover:text-blue-600 rounded-lg hover:bg-slate-50" %>
+          </nav>
+
+          <%# Desktop auth %>
+          <div class="hidden lg:flex items-center gap-2 text-sm shrink-0">
+            <% if Current.user %>
+              <%= link_to "Dashboard", dashboard_path,
+                  class: "px-3 py-1.5 text-slate-600 hover:text-blue-600 font-medium" %>
+              <%= button_to "Sign out", session_path, method: :delete,
+                    class: "text-slate-600 hover:text-red-600 cursor-pointer bg-transparent border-0 p-0 font-inherit text-sm" %>
+            <% else %>
+              <%= link_to "Login",    new_session_path,
+                  class: "px-3 py-1.5 text-slate-600 hover:text-blue-600 font-medium" %>
+              <%= link_to "Register", new_registration_path,
+                  class: "px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium" %>
+            <% end %>
+          </div>
+
+          <%# Mobile hamburger %>
+          <button class="lg:hidden p-2 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-50"
+                  data-action="click->navbar#toggle">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+
+        <%# Mobile menu %>
+        <div class="hidden lg:hidden border-t border-slate-100 py-3 space-y-0.5" data-navbar-target="menu">
+          <p class="px-3 pt-1 pb-0.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Date Tools</p>
+          <%= link_to "How Long Ago / Until Calculator", time_ago_calculator_path,    class: "block px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-50" %>
+          <%= link_to "Days Between Calculator",         date_difference_calculator_path, class: "block px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-50" %>
+          <%= link_to "Date Calculator",                 date_calculator_path,            class: "block px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-50" %>
+          <%= link_to "Day of The Week Calculator",      day_of_the_week_path,            class: "block px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-50" %>
+          <%= link_to "Recurring Date Finder",           recurring_date_finder_path,      class: "block px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-50" %>
+          <p class="px-3 pt-3 pb-0.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Calculators</p>
+          <%= link_to "Age Calculator",           age_calculator_path,           class: "block px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-50" %>
+          <%= link_to "Business Days Calculator", business_days_calculator_path, class: "block px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-50" %>
+          <%= link_to "Week Number Calculator",   week_number_path,              class: "block px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-50" %>
+          <%= link_to "Anniversary Calculator",   anniversary_calculator_path,   class: "block px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-50" %>
+          <div class="border-t border-slate-100 pt-3 mt-2 flex flex-col gap-0.5">
+            <%= link_to "Create Countdown", new_countdown_path,            class: "block px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-slate-50" %>
+            <%= link_to "Create Widget",    countdown_widget_builder_path, class: "block px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-slate-50" %>
+            <% if Current.user %>
+              <%= link_to "Dashboard", dashboard_path, class: "block px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-slate-50" %>
+              <%= button_to "Sign out", session_path, method: :delete,
+                    class: "block w-full text-left px-3 py-2 text-sm text-slate-700 rounded-lg hover:bg-slate-50 bg-transparent border-0 cursor-pointer" %>
+            <% else %>
+              <%= link_to "Login",    new_session_path,      class: "block px-3 py-2 text-sm font-medium text-slate-700 rounded-lg hover:bg-slate-50" %>
+              <%= link_to "Register", new_registration_path, class: "block px-3 py-2 text-sm font-medium text-blue-600 rounded-lg hover:bg-blue-50" %>
+            <% end %>
+          </div>
+        </div>
       </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 py-10">
+    <main class="max-w-7xl mx-auto px-4 py-10">
       <%= yield %>
     </main>
 

@@ -64,5 +64,5 @@ Rails.application.routes.draw do
   get "/countdown/:slug",    to: "holidays#show",          as: :countdown,       constraints: { slug: /[a-z0-9\-]+/ }
   get "/age/:slug",          to: "people#show",   as: :age_page,      constraints: { slug: /[a-z0-9\-]+/ }
 
-  root to: "calculators/time_ago#show"
+  root to: "home#index"
 end
