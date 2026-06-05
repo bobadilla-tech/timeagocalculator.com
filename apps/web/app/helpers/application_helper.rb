@@ -10,7 +10,10 @@ module ApplicationHelper
     "financial"     => "💰",
     "academic"      => "🎓",
     "patriotic"     => "🏴",
-    "historical"    => "📜"
+    "historical"    => "📜",
+    "birthdays"     => "🎂",
+    "economic"      => "📈",
+    "artists"       => "🎵"
   }.freeze
 
   def category_emoji(category)

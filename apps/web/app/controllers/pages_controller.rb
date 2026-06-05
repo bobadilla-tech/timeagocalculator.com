@@ -73,6 +73,8 @@ class PagesController < ApplicationController
   end
 
   def submit_feedback
+    name = params[:name]
+    email = params[:email]
     message = params[:message]
 
     if message.blank?
@@ -81,12 +83,19 @@ class PagesController < ApplicationController
       return
     end
 
-    # TODO: persist or deliver feedback (email, DB, external service)
-    flash[:notice] = "Thanks for your feedback."
+    begin
+      FeedbackMailer.feedback(name: name, email: email, message: message).deliver_now
+      flash[:notice] = "Thanks for your feedback."
+    rescue => e
+      Rails.logger.error("Feedback delivery failed: "+e.message)
+      flash[:alert] = "There was a problem sending your feedback. Please try again later."
+    end
+
     redirect_to feedback_path
   end
 
   def submit_report_a_bug
+    email = params[:email]
     message = params[:message]
 
     if message.blank?
@@ -95,8 +104,14 @@ class PagesController < ApplicationController
       return
     end
 
-    # TODO: persist or deliver bug report (email, issue tracker integration)
-    flash[:notice] = "Thanks — your bug report has been received."
+    begin
+      FeedbackMailer.bug_report(email: email, message: message).deliver_now
+      flash[:notice] = "Thanks — your bug report has been received."
+    rescue => e
+      Rails.logger.error("Bug report delivery failed: "+e.message)
+      flash[:alert] = "There was a problem submitting your bug report. Please try again later."
+    end
+
     redirect_to report_a_bug_path
   end
 

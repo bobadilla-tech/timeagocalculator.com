@@ -1,0 +1,77 @@
+<div class="max-w-5xl mx-auto">
+  <nav class="text-sm text-slate-400 mb-6">
+    <%= link_to "Home", root_path, class: "hover:text-blue-600" %> /
+    <%= link_to "Event Countdowns", events_path, class: "hover:text-blue-600" %> /
+    <span class="text-slate-600">Historical Events</span>
+  </nav>
+
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-slate-900">Historical Events</h1>
+    <p class="text-slate-500 mt-2">Discover how long ago major events happened.</p>
+  </div>
+
+  <%# Search %>
+  <%= form_with url: historical_events_path, method: :get, local: true, class: "mb-6" do |f| %>
+    <div class="flex gap-2">
+      <%= f.hidden_field :category, value: @category %>
+      <div class="relative flex-1">
+        <input type="text" name="q" value="<%= @q %>"
+               placeholder="Search past events…"
+               class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+        <svg class="absolute left-3 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+        </svg>
+      </div>
+      <%= f.submit "Search", class: "px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 cursor-pointer" %>
+    </div>
+  <% end %>
+
+  <%# Category filter %>
+  <div class="flex flex-wrap gap-2 mb-8">
+    <%= link_to "All", historical_events_path(q: @q),
+        class: "px-3 py-1 rounded-full text-sm font-medium #{@category.nil? ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}" %>
+    <% Event::CATEGORIES.each do |cat| %>
+      <%= link_to cat.titleize, historical_events_path(category: cat, q: @q),
+          class: "px-3 py-1 rounded-full text-sm font-medium #{@category == cat ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}" %>
+    <% end %>
+  </div>
+
+  <% if @events.any? %>
+    <section>
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm divide-y divide-slate-100">
+        <% @events.each do |event| %>
+          <%= link_to event_path(event.slug), class: "flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors" do %>
+            <% if event.image_url.present? %>
+              <img src="<%= event.image_url %>" alt="<%= event.title %>"
+                   class="w-12 h-12 rounded-lg object-cover shrink-0">
+            <% else %>
+              <div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 text-xl">
+                <%= category_emoji(event.category) %>
+              </div>
+            <% end %>
+
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-slate-800 truncate"><%= event.title %></p>
+              <p class="text-sm text-slate-500"><%= event.starts_at.strftime("%b %-d, %Y") %></p>
+            </div>
+
+            <span class="shrink-0 bg-slate-200 text-slate-600 text-xs font-bold px-2 py-1 rounded">
+              <%= event.days_since %>d ago
+            </span>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% else %>
+    <div class="text-center py-16 text-slate-400">
+      <p class="text-lg">No past events found.</p>
+      <% if @category.present? || @q.present? %>
+        <%= link_to "Clear filters", historical_events_path, class: "text-blue-600 hover:underline mt-2 inline-block" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="mt-8">
+    <%= link_to "← Upcoming events", events_path, class: "text-blue-600 hover:underline font-medium text-sm" %>
+  </div>
+</div>

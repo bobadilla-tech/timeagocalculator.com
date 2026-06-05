@@ -54,9 +54,13 @@ Rails.application.routes.draw do
 
   get "/countdown/new", to: redirect("/countdowns/new")
 
-  get "/events",             to: "events#index",           as: :events
-  get "/events/:slug",       to: "events#show_event",      as: :event,           constraints: { slug: /[a-z0-9\-]+/ }
-  get "/how-long-ago/:slug", to: "events#show",            as: :how_long_ago,    constraints: { slug: /[a-z0-9\-]+/ }
+  get "/events",                              to: "events#index",           as: :events
+  get "/events/historical",                   to: "events#historical",      as: :historical_events
+  get "/events/category/:category",           to: "events#by_category",     as: :events_by_category,      constraints: { category: /[a-z\-]+/ }
+  get "/events/country/:country",             to: "events#by_country",      as: :events_by_country,       constraints: { country: /[a-z\-]+/ }
+  get "/events/country/:country/:year",       to: "events#by_country",      as: :events_by_country_year,  constraints: { country: /[a-z\-]+/, year: /\d{4}/ }
+  get "/events/:slug",                        to: "events#show_event",      as: :event,                   constraints: { slug: /[a-z0-9\-]+/ }
+  get "/how-long-ago/:slug",                  to: "events#show",            as: :how_long_ago,            constraints: { slug: /[a-z0-9\-]+/ }
   get "/countdown/:slug",    to: "holidays#show",          as: :countdown,       constraints: { slug: /[a-z0-9\-]+/ }
   get "/age/:slug",          to: "people#show",   as: :age_page,      constraints: { slug: /[a-z0-9\-]+/ }
 

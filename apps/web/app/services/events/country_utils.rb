@@ -82,6 +82,18 @@ module Events
       "UTC"
     end
 
+    # Reverse lookup: parameterized country name → ISO 3166-1 code
+    # "new-zealand" → "NZ", "peru" → "PE"
+    def self.code_from_slug(slug)
+      @slug_to_code ||= begin
+        map = {}
+        TZInfo::Country.all.each { |c| map[country_slug_name(c.code)] = c.code }
+        IANA_FALLBACK_NAMES.each { |code, name| map[name.parameterize] = code }
+        map
+      end
+      @slug_to_code[slug]
+    end
+
     # Build a midnight-local UTC Time for a given country + date
     def self.midnight_utc(country_code, year, month, day)
       tz_name = primary_timezone(country_code)

@@ -25,8 +25,15 @@
     </p>
 
     <%= render "shared/result_card" do %>
-      <% days  = @event.days_until %>
-      <% weeks = @event.weeks_until %>
+      <% days    = @event.days_until %>
+      <% weeks   = @event.total_weeks_until %>
+      <% months  = @event.total_months_until %>
+      <% hours   = @event.total_hours_until %>
+      <% minutes = @event.total_minutes_until %>
+      <% secs    = @event.total_seconds_until %>
+      <% wdays   = @event.weekdays_until %>
+      <% wends   = @event.weekends_until %>
+
       <p class="text-lg font-semibold text-slate-700 mb-6">
         <% if days == 0 %>
           <span class="text-blue-600"><%= @event.title %> is today!</span>
@@ -36,15 +43,23 @@
         <% end %>
       </p>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <%= render "shared/countdown_display", result: @result, label: "Live countdown to #{@event.title}" %>
+
+      <%# Stats grid %>
+      <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
         <% [
-          [ days,  "Days"  ],
-          [ weeks, "Weeks" ],
-          [ (@event.starts_at.to_date - Date.current).to_i / 30, "Months" ]
-        ].each do |value, label| %>
-          <div class="text-center bg-slate-50 rounded-xl p-4">
-            <div class="text-2xl font-bold text-blue-700"><%= number_with_delimiter([value.to_i, 0].max) %></div>
-            <div class="text-xs text-slate-500 mt-1"><%= label %></div>
+          [ months,  "Months"    ],
+          [ weeks,   "Weeks"     ],
+          [ days,    "Days"      ],
+          [ hours,   "Hours"     ],
+          [ minutes, "Minutes"   ],
+          [ secs,    "Seconds"   ],
+          [ wdays,   "Week Days" ],
+          [ wends,   "Weekends"  ]
+        ].each do |val, lbl| %>
+          <div class="text-center bg-slate-50 rounded-xl p-3">
+            <div class="text-xl font-bold text-blue-700"><%= number_with_delimiter(val) %></div>
+            <div class="text-xs text-slate-500 mt-0.5"><%= lbl %></div>
           </div>
         <% end %>
       </div>

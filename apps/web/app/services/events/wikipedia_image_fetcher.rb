@@ -31,7 +31,11 @@ module Events
         pilicense:   "any"
       )
 
-      response = Net::HTTP.get_response(uri)
+      request = Net::HTTP::Get.new(uri)
+      request["User-Agent"] = "timeagocalculator.com/1.0 (eliaz.bobadilladev@gmail.com)"
+      http     = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      response = http.request(request)
       return nil unless response.is_a?(Net::HTTPSuccess)
 
       data  = JSON.parse(response.body)
