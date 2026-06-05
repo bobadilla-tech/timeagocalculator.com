@@ -6,12 +6,6 @@
 cd ~/server/timeagocalculator.com && git pull && cd infra/docker && docker compose -f compose.yml up -d --build
 ```
 
-Or use the deploy script:
-
-```sh
-~/server/timeagocalculator.com/infra/scripts/deploy.sh
-```
-
 ---
 
 ## Architecture
@@ -35,25 +29,11 @@ Caddy config: `infra/caddy/Caddyfile`
 - Redirects `www` → apex
 - HSTS, X-Frame-Options, Referrer-Policy headers
 
----
-
-## Pre-Deployment Checklist
-
-- [ ] Hetzner VPS created and accessible via SSH
-- [ ] `timeagocalculator.com` A records pointed to VPS IP in Cloudflare
-- [ ] `apps/web/config/master.key` backed up offline
-- [ ] SSH key added to GitHub
-
----
-
-## Part 1: VPS Setup (Hetzner)
+## Part 1: VPS Setup
 
 ### 1.1 Create VPS
 
-- **Server Type:** CX22 (2 vCPU, 4 GB RAM) — ~€4.35/month
-- **OS:** Ubuntu 24.04 LTS
-- **Location:** Falkenstein (fsn1) or Ashburn (ash)
-- **Backups:** Enable
+On Hetzner.
 
 ### 1.2 Initial Setup
 
@@ -94,8 +74,6 @@ su - deploy
 git clone git@github.com:bobadilla-tech/timeagocalculator.com.git ~/server/timeagocalculator.com
 cd ~/server/timeagocalculator.com
 ```
-
----
 
 ## Part 2: Environment Configuration
 
@@ -197,31 +175,45 @@ curl https://timeagocalculator.com/up
 docker compose -f compose.yml logs web | tail -50
 ```
 
-### Set up automatic backups
+---
+
+## Part 5.1: Seed Events Data
+
+Seed files are bundled inside the image at `db/seeds/data/`. No volume mount needed.
+
+Run once after first deploy (and any time starting from a fresh DB):
 
 ```bash
-nano /home/deploy/backup-db.sh
+cd ~/server/timeagocalculator.com/infra/docker
+
+# 1. Leaders (US Presidents, UK PMs, UK Monarchs) — fast, ~62 records
+docker compose -f compose.yml exec web bin/rails events:seed_leaders
+
+# 2. Full event ingest from all sources (curated + NagerDate + OpenHolidays + Calendarific)
+#    Fetches Wikipedia images too — takes 5–15 min
+docker compose -f compose.yml exec web bin/rails events:ingest
 ```
 
+`events:ingest` loads 2 years behind + 3 years ahead. `seed_leaders` is idempotent — safe to re-run.
+
+### Backfill missing images (optional)
+
 ```bash
-#!/usr/bin/env bash
-set -euo pipefail
-BACKUP_DIR="$HOME/backups"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-mkdir -p "$BACKUP_DIR"
-
-docker compose -f "$HOME/server/timeagocalculator.com/infra/docker/compose.yml" \
-  exec -T postgres pg_dump -U postgres web_production \
-  > "$BACKUP_DIR/backup_$TIMESTAMP.sql"
-
-find "$BACKUP_DIR" -name "backup_*.sql" -mtime +14 -delete
-echo "Backup done: backup_$TIMESTAMP.sql"
+docker compose -f compose.yml exec web bin/rails events:backfill_images
 ```
 
+### Refresh upcoming events (run periodically / after updates)
+
 ```bash
-chmod +x /home/deploy/backup-db.sh
-crontab -e
-# Add: 0 3 * * * /home/deploy/backup-db.sh >> /home/deploy/backup.log 2>&1
+# Loads current year + next 2 years only — faster than full ingest
+docker compose -f compose.yml exec web bin/rails events:refresh
+```
+
+Suggested: run `events:refresh` monthly via cron on the VPS:
+
+```bash
+# crontab -e  (as deploy user)
+0 3 1 * * cd /home/deploy/server/timeagocalculator.com/infra/docker && docker compose -f compose.yml exec -T web bin/rails events:refresh >> /var/log/events-refresh.log 2>&1
 ```
 
 ---

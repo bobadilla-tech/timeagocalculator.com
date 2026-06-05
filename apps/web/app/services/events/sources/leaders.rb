@@ -4,7 +4,7 @@ require "time"
 module Events
   module Sources
     class Leaders
-      SEED_PATH = Rails.root.join("../../data/seeds/leaders.json")
+      SEED_PATH = Rails.root.join("db/seeds/data/leaders.json")
 
       def self.fetch
         JSON.parse(File.read(SEED_PATH)).map do |entry|

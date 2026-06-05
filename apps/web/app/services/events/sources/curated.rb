@@ -6,7 +6,7 @@ module Events
     # Annual events get instances created for years: (current-1)..(current+3).
     # Quadrennial events get one instance for the nearest relevant year.
     class Curated
-      SEED_PATH    = Rails.root.join("../../data/seeds/curated_events.json")
+      SEED_PATH    = Rails.root.join("db/seeds/data/curated_events.json")
       YEARS_AHEAD  = 3
       YEARS_BEHIND = 1
 
