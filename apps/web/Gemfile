@@ -21,7 +21,7 @@ gem "tailwindcss-rails"
 gem "bcrypt", "~> 3.1.7"
 
 # OAuth (providers configured per deployment — see config/initializers/omniauth.rb)
-gem "omniauth", "~> 2.1"
+gem "omniauth", "~> 2.3"
 gem "omniauth-rails_csrf_protection", "~> 2.0"
 
 # Background jobs
