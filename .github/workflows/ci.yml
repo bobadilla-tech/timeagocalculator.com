@@ -120,5 +120,6 @@ jobs:
     if: always()
     steps:
       - name: Check results
+        working-directory: .
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: exit 1
