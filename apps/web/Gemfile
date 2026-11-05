@@ -32,7 +32,7 @@ gem "sidekiq-cron", "~> 2.4"
 gem "redis", "~> 6.0"
 
 # SEO
-gem "meta-tags", "~> 2.23"
+gem "meta-tags", "~> 2.24"
 gem "sitemap_generator", "~> 7.1"
 
 # Rate limiting
