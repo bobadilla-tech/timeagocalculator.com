@@ -33,7 +33,7 @@ gem "redis", "~> 6.0"
 
 # SEO
 gem "meta-tags", "~> 2.23"
-gem "sitemap_generator", "~> 7.0"
+gem "sitemap_generator", "~> 7.1"
 
 # Rate limiting
 gem "rack-attack", "~> 6.8"
