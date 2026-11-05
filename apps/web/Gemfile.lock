@@ -326,7 +326,7 @@ GEM
       fugit (~> 1.8, >= 1.11.1)
       globalid (>= 1.0.1)
       sidekiq (>= 6.5.0)
-    sitemap_generator (7.0.3)
+    sitemap_generator (7.1.1)
       builder (~> 3.0)
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
@@ -403,7 +403,7 @@ DEPENDENCIES
   selenium-webdriver
   sidekiq (~> 8.1)
   sidekiq-cron (~> 2.4)
-  sitemap_generator (~> 7.0)
+  sitemap_generator (~> 7.1)
   stimulus-rails
   tailwindcss-rails
   turbo-rails
@@ -526,7 +526,7 @@ CHECKSUMS
   selenium-webdriver (4.44.0) sha256=6f1df072529af369589c46f0e01132952aabb250cfd683c274d74dc1eb5d8477
   sidekiq (8.1.7) sha256=91ad48c7e6c32e1846bf1d5b74c27948758049b93fed0cb539f8d586c7de3415
   sidekiq-cron (2.4.0) sha256=25595c5aee0c16d13a89466e5108af047fa4cfbf388199b39e1a600ca39472d4
-  sitemap_generator (7.0.3) sha256=a4ca536d7d8b489a29ba715dd8b4793d73a2071f8a9b0f2827edaba86fde8cce
+  sitemap_generator (7.1.1) sha256=ab2a133d512a7b33ed713a27a9977f61d8379c9943e3b79900243fc1c4f7f81d
   stimulus-rails (1.3.4) sha256=765676ffa1f33af64ce026d26b48e8ffb2e0b94e0f50e9119e11d6107d67cb06
   stringio (3.2.0) sha256=c37cb2e58b4ffbd33fe5cd948c05934af997b36e0b6ca6fdf43afa234cf222e1
   tailwindcss-rails (4.4.0) sha256=efa2961351a52acebe616e645a81a30bb4f27fde46cc06ce7688d1cd1131e916
