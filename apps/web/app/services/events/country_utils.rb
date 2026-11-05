@@ -31,7 +31,7 @@ module Events
       "RS" => "Europe/Belgrade",
       "GL" => "America/Godthab",
       "KZ" => "Asia/Almaty",
-      "MN" => "Asia/Ulaanbaatar",
+      "MN" => "Asia/Ulaanbaatar"
     }.freeze
 
     # IANA doesn't cover some territories — provide names manually
@@ -44,7 +44,7 @@ module Events
       "SX" => "Sint Maarten",
       "CW" => "Curaçao",
       "BQ" => "Bonaire",
-      "SS" => "South Sudan",
+      "SS" => "South Sudan"
     }.freeze
 
     IANA_FALLBACK_TIMEZONES = {
@@ -56,7 +56,7 @@ module Events
       "SX" => "America/Lower_Princes",
       "CW" => "America/Curacao",
       "BQ" => "America/Kralendijk",
-      "SS" => "Africa/Juba",
+      "SS" => "Africa/Juba"
     }.freeze
 
     def self.country_name(code)

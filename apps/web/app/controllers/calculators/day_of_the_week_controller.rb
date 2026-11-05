@@ -15,11 +15,11 @@ module Calculators
 
       year = today.year
       notable_raw = [
-        [Date.new(year, 1, 1),  "New Year's Day"],
-        [Date.new(year, 7, 4),  "Independence Day"],
-        [Date.new(year, 10, 31), "Halloween"],
-        [Date.new(year, 12, 25), "Christmas Day"],
-        [Date.new(year, 12, 31), "New Year's Eve"],
+        [ Date.new(year, 1, 1),  "New Year's Day" ],
+        [ Date.new(year, 7, 4),  "Independence Day" ],
+        [ Date.new(year, 10, 31), "Halloween" ],
+        [ Date.new(year, 12, 25), "Christmas Day" ],
+        [ Date.new(year, 12, 31), "New Year's Eve" ]
       ]
       @notable_dates = notable_raw.map do |date, name|
         date = Date.new(year + 1, date.month, date.day) if date < today

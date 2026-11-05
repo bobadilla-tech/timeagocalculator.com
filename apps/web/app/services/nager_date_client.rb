@@ -27,7 +27,7 @@ class NagerDateClient
     { "countryCode" => "PT", "name" => "Portugal" },
     { "countryCode" => "PE", "name" => "Peru" },
     { "countryCode" => "CL", "name" => "Chile" },
-    { "countryCode" => "CO", "name" => "Colombia" },
+    { "countryCode" => "CO", "name" => "Colombia" }
   ].freeze
 
   def self.available_countries

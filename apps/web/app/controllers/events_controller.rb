@@ -21,7 +21,7 @@ class EventsController < ApplicationController
       base      = base.where("title ILIKE ?", "%#{@q}%") if @q
       @upcoming = base.sorted_upcoming.limit(UPCOMING_LIMIT)
     else
-      excluded_ids = [@featured&.id].compact
+      excluded_ids = [ @featured&.id ].compact
       # Sidebar: next events that have an image, fallback to any
       @coming_up = Event.published.upcoming
                         .where.not(id: excluded_ids)

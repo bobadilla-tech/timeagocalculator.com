@@ -2,11 +2,11 @@ class WidgetsController < ApplicationController
   include SeoMetaTaggable
 
   FONTS = [
-    ["System (default)", "system"],
-    ["Space Grotesk",    "Space Grotesk"],
-    ["Inter",            "Inter"],
-    ["Roboto",           "Roboto"],
-    ["Georgia",          "Georgia"],
+    [ "System (default)", "system" ],
+    [ "Space Grotesk",    "Space Grotesk" ],
+    [ "Inter",            "Inter" ],
+    [ "Roboto",           "Roboto" ],
+    [ "Georgia",          "Georgia" ]
   ].freeze
 
   FONT_NAMES = FONTS.map(&:last).freeze
@@ -15,7 +15,7 @@ class WidgetsController < ApplicationController
     "none"   => "none",
     "soft"   => "0 2px 8px rgba(0,0,0,0.15)",
     "medium" => "0 4px 16px rgba(0,0,0,0.25)",
-    "strong" => "0 8px 32px rgba(0,0,0,0.45)",
+    "strong" => "0 8px 32px rgba(0,0,0,0.45)"
   }.freeze
 
   def builder
@@ -30,7 +30,7 @@ class WidgetsController < ApplicationController
       description: "Build and embed a custom countdown timer widget for any website."
     )
     @fonts     = FONTS
-    @timezones = ActiveSupport::TimeZone.all.map { |z| ["#{z.to_s}", z.tzinfo.identifier] }
+    @timezones = ActiveSupport::TimeZone.all.map { |z| [ "#{z}", z.tzinfo.identifier ] }
   end
 
   def countdown

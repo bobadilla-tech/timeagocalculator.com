@@ -60,11 +60,11 @@ class PagesController < ApplicationController
   }.freeze
 
   before_action :set_page
-  skip_before_action :set_page, only: [:submit_feedback, :submit_report_a_bug]
+  skip_before_action :set_page, only: [ :submit_feedback, :submit_report_a_bug ]
 
   PAGES.each_key do |page_action|
     define_method(page_action) do
-      if lookup_context.template_exists?(page_action, [controller_path], false)
+      if lookup_context.template_exists?(page_action, [ controller_path ], false)
         render action: page_action
       else
         render :show
@@ -127,12 +127,12 @@ class PagesController < ApplicationController
       og: {
         title: @page.title,
         description: @page.description,
-        image: (action_name == 'date_calculator' ? (request.base_url + "/social-preview.svg") : (request.base_url + "/icon.jpeg"))
+        image: (action_name == "date_calculator" ? (request.base_url + "/social-preview.svg") : (request.base_url + "/icon.jpeg"))
       },
       twitter: {
         title: @page.title,
         description: @page.description,
-        image: (action_name == 'date_calculator' ? (request.base_url + "/social-preview.svg") : (request.base_url + "/icon.jpeg"))
+        image: (action_name == "date_calculator" ? (request.base_url + "/social-preview.svg") : (request.base_url + "/icon.jpeg"))
       }
     )
     app_schema = Seo::StructuredDataBuilder.web_application(
@@ -142,7 +142,7 @@ class PagesController < ApplicationController
     )
 
     # Add page-specific structured data (FAQ) for Date Calculator
-    if action_name == 'date_calculator'
+    if action_name == "date_calculator"
       faq_pairs = {
         "How do I add months to a date?" => "Select 'Months' as the unit, set the amount, and choose Add. Month-end dates are handled so Jan 31 + 1 month -> Feb 28/29.",
         "Can I subtract weeks?" => "Yes — choose Subtract and select Weeks as the unit to go back in time by the specified number of weeks.",
@@ -156,9 +156,9 @@ class PagesController < ApplicationController
         { name: "Calculate", text: "Click Calculate Date to see the result. Quick-buttons provide common presets." }
       ]
 
-      @schema = [app_schema, Seo::StructuredDataBuilder.faq(faq_pairs), Seo::StructuredDataBuilder.howto(name: @page.title, description: @page.description, steps: howto_steps)]
+      @schema = [ app_schema, Seo::StructuredDataBuilder.faq(faq_pairs), Seo::StructuredDataBuilder.howto(name: @page.title, description: @page.description, steps: howto_steps) ]
       # Use a custom social preview image for better Open Graph cards
-      @og_image = request.base_url + '/social-preview.svg'
+      @og_image = request.base_url + "/social-preview.svg"
     else
       @schema = app_schema
     end

@@ -1,7 +1,7 @@
 class HomeController < ApplicationController
   def index
     @featured  = Event.published.featured.sorted_upcoming.first
-    excluded   = [@featured&.id].compact
+    excluded   = [ @featured&.id ].compact
 
     @coming_up = Event.published.upcoming
                       .where.not(id: excluded)

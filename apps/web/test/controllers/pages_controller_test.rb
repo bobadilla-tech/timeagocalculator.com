@@ -4,7 +4,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   test "static footer pages render successfully" do
     pages = {
       date_calculator_path => "Date Calculator",
-      day_of_the_week_path => "Day of the Week",
+      day_of_the_week_path => "Day of the Week Calculator",
       recurring_date_finder_path => "Recurring Date Finder",
       week_number_path => "Week Number",
       anniversary_calculator_path => "Anniversary Calculator",
@@ -49,8 +49,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select "p", /2025/
         assert_select "a[href='https://www.buymeacoffee.com/']"
         assert_select "a[href='https://www.buymeacoffee.com/'][target='_blank'][rel='noopener']"
-        assert_select "a[href='https://facebook.com/'][target='_blank'][rel='noopener']"
-        assert_select "a[href='https://twitter.com/'][target='_blank'][rel='noopener']"
+        assert_select "a[href='https://www.instagram.com/bobadilla.tech/'][target='_blank'][rel='noopener']"
+        assert_select "a[href='https://www.linkedin.com/company/bobadilla-tech'][target='_blank'][rel='noopener']"
     end
   end
 
