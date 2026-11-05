@@ -29,7 +29,7 @@ gem "sidekiq", "~> 8.1"
 gem "sidekiq-cron", "~> 2.4"
 
 # Redis client
-gem "redis", "~> 5.0"
+gem "redis", "~> 6.0"
 
 # SEO
 gem "meta-tags", "~> 2.23"
